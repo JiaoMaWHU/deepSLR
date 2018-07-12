@@ -27,15 +27,15 @@ class LoadData(object):
     def read_data(self):
         # read a data file. For a row, the first column goes into Y_;
         # the other columns become a row in X_ and entries are maped to indexs in self.features
-        emgtr=self.load(self.emgtrainfile,64)
-        emgte=self.load(self.emgtestfile,64)
-        imutr=self.load(self.imutrainfile,26)
-        imute=self.load(self.imutestfile,26)
+        emgtr=self.load(self.emgtrainfile)
+        emgte=self.load(self.emgtestfile)
+        imutr=self.load(self.imutrainfile)
+        imute=self.load(self.imutestfile)
         ytr=self.yload(self.y_train)
         yte=self.yload(self.y_est)
         return emgtr,emgte,imutr,imute,ytr,yte
     
-    def load(self,file,num):
+    def load(self,file):
         f=open(file)
         X=[]
         fx=[]
@@ -46,11 +46,20 @@ class LoadData(object):
                 fx=[]
             else:
                 items = line.strip().split(' ')   
-                fx.append( [ item for item in items] )
+                fx.append( [ float(item) for item in items] )
             line = f.readline()
         f.close()
         return X
     
+    def yload(self,file):
+        f=open(file)
+        Y=[]
+        line = f.readline()
+        while line:
+            Y.append(int(line))
+            line = f.readline()
+        f.close
+        print(Y)
     
         
         
