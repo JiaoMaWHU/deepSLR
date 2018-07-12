@@ -60,7 +60,8 @@ class LoadData(object):
             line = f.readline()
         f.close
         return Y
-    
+    def getdata(self):
+        return self.emgtraindata,self.emgtestdata,self.imutraindata,self.imutestdata,self.y_trainlabel,self.y_testlabel
     def getemgtrain(self):
         return self.emgtraindata
     def getemgtest(self):
