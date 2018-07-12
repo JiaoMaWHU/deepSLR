@@ -11,102 +11,55 @@ class LoadData(object):
     '''
 
     # Three files are needed in the path
-    def __init__(self, path, dataset, loss_type="square_loss"):
-        self.path = path + dataset + "/"
-        self.trainfile = self.path + dataset +".train.libfm"
-        self.testfile = self.path + dataset + ".test.libfm"
-        self.validationfile = self.path + dataset + ".validation.libfm"
-        self.features_M = self.map_features( )
-        self.Train_data, self.Validation_data, self.Test_data = self.construct_data( loss_type )
+    def __init__(self, path, dataset):
+        self.path = path + "/"
+        self.emgtrainfile = self.path +".emgtrain.txt"
+        self.emgtestfile = self.path + ".emgtest.txt"
+        self.imutrainfile = self.path +".imutrain.txt"
+        self.imutestfile = self.path + ".imutest.txt"
+        self.y_train = self.path + ".y_train.txt"
+        self.y_test = self.path + ".y_test.txt"
+        
+        self.emgtraindata,self.emgtestdata,self.imutraindata,self.imutestdata,self.y_trainlabel,self.y_testlabel=self.read_data()
 
-    def map_features(self): # map the feature entries in all files, kept in self.features dictionary
-        self.features = {}
-        self.read_features(self.trainfile)
-        self.read_features(self.testfile)
-        self.read_features(self.validationfile)
-        print("features_M:", len(self.features))
-        return  len(self.features)
 
-    def read_features(self, file): # read a feature file
-        f = open( file )
-        line = f.readline()
-        i = len(self.features)
-        while line:
-            items = line.strip().split(' ')
-            for item in items[1:]:
-                if item not in self.features:
-                    self.features[ item ] = i
-                    i = i + 1
-            line = f.readline()
-        f.close()
 
-    def construct_data(self, loss_type):
-        X_, Y_ , Y_for_logloss= self.read_data(self.trainfile)
-        if loss_type == 'log_loss':
-            Train_data = self.construct_dataset(X_, Y_for_logloss)
-        else:
-            Train_data = self.construct_dataset(X_, Y_)
-        #print("Number of samples in Train:" , len(Y_))
-
-        X_, Y_ , Y_for_logloss= self.read_data(self.validationfile)
-        if loss_type == 'log_loss':
-            Validation_data = self.construct_dataset(X_, Y_for_logloss)
-        else:
-            Validation_data = self.construct_dataset(X_, Y_)
-        #print("Number of samples in Validation:", len(Y_))
-
-        X_, Y_ , Y_for_logloss = self.read_data(self.testfile)
-        if loss_type == 'log_loss':
-            Test_data = self.construct_dataset(X_, Y_for_logloss)
-        else:
-            Test_data = self.construct_dataset(X_, Y_)
-        #print("Number of samples in Test:", len(Y_))
-
-        return Train_data,  Validation_data,  Test_data
-
-    def read_data(self, file):
+    def read_data(self):
         # read a data file. For a row, the first column goes into Y_;
         # the other columns become a row in X_ and entries are maped to indexs in self.features
-        f = open( file )
-        X_ = []
-        Y_ = []
-        Y_for_logloss = []
+        emgtr=self.load(self.emgtrainfile)
+        emgte=self.load(self.emgtestfile)
+        imutr=self.load(self.imutrainfile)
+        imute=self.load(self.imutestfile)
+        ytr=self.yload(self.y_train)
+        yte=self.yload(self.y_est)
+        return emgtr,emgte,imutr,imute,ytr,yte
+    
+    def load(self,file):
+        f=open(file)
+        X=[]
+        fx=[]
         line = f.readline()
         while line:
-            items = line.strip().split(' ')
-            Y_.append( 1.0*float(items[0]) )
-
-            if float(items[0]) > 0:# > 0 as 1; others as 0
-                v = 1.0
+            if len(line)<5:
+                X.append(fx)
+                fx=[]
             else:
-                v = 0.0
-            Y_for_logloss.append( v )
-
-            X_.append( [ self.features[item] for item in items[1:]] )
+                items = line.strip().split(' ')   
+                fx.append( [ float(item) for item in items] )
             line = f.readline()
         f.close()
-        return X_, Y_, Y_for_logloss
-
-    def construct_dataset(self, X_, Y_):
-        Data_Dic = {}
-        X_lens = [ len(line) for line in X_]
-        indexs = np.argsort(X_lens)
-        Data_Dic['Y'] = [ Y_[i] for i in indexs]
-        Data_Dic['X'] = [ X_[i] for i in indexs]
-        return Data_Dic
+        return X
     
-    def truncate_features(self):
-        """
-        Make sure each feature vector is of the same length
-        """
-        num_variable = len(self.Train_data['X'][0])
-        for i in range(len(self.Train_data['X'])):
-            num_variable = min([num_variable, len(self.Train_data['X'][i])])
-        # truncate train, validation and test
-        for i in range(len(self.Train_data['X'])):
-            self.Train_data['X'][i] = self.Train_data['X'][i][0:num_variable]
-        for i in range(len(self.Validation_data['X'])):
-            self.Validation_data['X'][i] = self.Validation_data['X'][i][0:num_variable]
-        for i in range(len(self.Test_data['X'])):
-            self.Test_data['X'][i] = self.Test_data['X'][i][0:num_variable]
-        return num_variable
+    def yload(self,file):
+        f=open(file)
+        Y=[]
+        line = f.readline()
+        while line:
+            Y.append(int(line))
+            line = f.readline()
+        f.close
+        print(Y)
+    
+        
+        
