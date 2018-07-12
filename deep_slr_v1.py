@@ -257,7 +257,7 @@ class SLR():
                                          np.ones(num_example) * max(y_true))  # bound the higher values
         RMSE = math.sqrt(mean_squared_error(y_true, predictions_bounded))
 
-        return RMSE
+        return RMSE     
 
 def make_save_file(args):
     pretrain_path = '../pretrain/fm_%s_%d' % (args.dataset, args.hidden_factor)
@@ -305,7 +305,7 @@ def train(args):
 
 def evaluate(args):
     # load test data
-    data = DATA.LoadData(args.path, args.dataset).Test_data
+    data = DATA.LoadData(args.path).Test_data
     save_file = make_save_file(args)
 
     # load the graph
