@@ -350,10 +350,16 @@ def evaluate(args):
     logging.info("Test RMSE: %.4f" % (RMSE))
 
 if __name__ == '__main__':
-    args = parse_args()
+    emg_train=DATA.LoadData("data").getemgtrain()
+    emg_test=DATA.LoadData("data").getemgtest()
+    imu_train=DATA.LoadData("data").getimutrain()
+    imu_test=DATA.LoadData("data").getimutest()
+    y_train=DATA.LoadData("data").gettrainlabel()
+    y_test=DATA.LoadData("data").gettestlabel()
+    #args = parse_args()
 
-    log_file = make_log_file(args)
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG, filename=log_file)
+    #log_file = make_log_file(args)
+    #logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG, filename=log_file)
 
     # initialize the optimal parameters
     # if args.mla:
@@ -365,7 +371,7 @@ if __name__ == '__main__':
     #     args.keep = 0.7
     #     args.batch_norm = 1
 
-    if args.process == 'train':
-        train(args)
-    elif args.process == 'evaluate':
-        evaluate(args)
+    #if args.process == 'train':
+    #    train(args)
+    #elif args.process == 'evaluate':
+    #    evaluate(args)

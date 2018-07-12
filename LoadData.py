@@ -9,19 +9,18 @@ class LoadData(object):
     Test_data: same as Train_data
     Validation_data: same as Train_data
     '''
-
+    
     # Three files are needed in the path
-    def __init__(self, path, dataset):
+    def __init__(self, path):
         self.path = path + "/"
-        self.emgtrainfile = self.path +".emgtrain.txt"
-        self.emgtestfile = self.path + ".emgtest.txt"
-        self.imutrainfile = self.path +".imutrain.txt"
-        self.imutestfile = self.path + ".imutest.txt"
-        self.y_train = self.path + ".y_train.txt"
-        self.y_test = self.path + ".y_test.txt"
+        self.emgtrainfile = self.path +"emgtrain.txt"
+        self.emgtestfile = self.path + "emgtest.txt"
+        self.imutrainfile = self.path +"imutrain.txt"
+        self.imutestfile = self.path + "imutest.txt"
+        self.y_train = self.path + "y_train.txt"
+        self.y_test = self.path + "y_test.txt"
         
         self.emgtraindata,self.emgtestdata,self.imutraindata,self.imutestdata,self.y_trainlabel,self.y_testlabel=self.read_data()
-
 
 
     def read_data(self):
@@ -32,7 +31,7 @@ class LoadData(object):
         imutr=self.load(self.imutrainfile)
         imute=self.load(self.imutestfile)
         ytr=self.yload(self.y_train)
-        yte=self.yload(self.y_est)
+        yte=self.yload(self.y_test)
         return emgtr,emgte,imutr,imute,ytr,yte
     
     def load(self,file):
@@ -56,10 +55,21 @@ class LoadData(object):
         Y=[]
         line = f.readline()
         while line:
-            Y.append(int(line))
+            items = line.strip().split(' ')
+            Y.append( [ int(item) for item in items] )
             line = f.readline()
         f.close
-        print(Y)
+        return Y
     
-        
-        
+    def getemgtrain(self):
+        return self.emgtraindata
+    def getemgtest(self):
+        return self.emgtestdata
+    def getimutrain(self):
+        return self.imutraindata
+    def getimutest(self):
+        return self.imutestdata
+    def gettrainlabel(self):
+        return self.y_trainlabel
+    def gettestlabel(self):
+        return self.y_testlabel    
