@@ -277,7 +277,7 @@ def make_log_file(args):
 def train(args):
     # Data loading
     emg_train,emg_test,imu_train,imu_test,y_train,y_test=DATA.LoadData("data").getdata()
-
+    
     if args.verbose > 0:
         #下面的需要改
         print(
@@ -285,7 +285,7 @@ def train(args):
             % (  args.epoch, args.batch_size, args.lr, 
                args.optimizer, args.batch_norm))
         logging.info(
-            "FM:   #epoch=%d, batch=%d, lr=%.4f,  optimizer=%s, batch_norm=%d"
+            "FM:   #epoch=%d, batch=%d,so lr=%.4f,  optimizer=%s, batch_norm=%d"
             % ( args.epoch, args.batch_size, args.lr, 
                args.optimizer, args.batch_norm))
 
