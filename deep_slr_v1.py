@@ -10,6 +10,7 @@ from sklearn.metrics import mean_squared_error
 from tensorflow.contrib.layers import batch_norm as batch_norm
 
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Run DeepSLR.")
     parser.add_argument('--process', nargs='?', default='train',
@@ -37,35 +38,124 @@ def parse_args():
 
 
 class SLR():
-    def __init__(self, features_M, pretrain_flag, save_file, epoch, batch_size, learning_rate,
-                 optimizer_type, batch_norm, verbose, random_seed=2018):
+    def __init__(self):
         # bind params to class
-        self.batch_size = batch_size
-        self.learning_rate = learning_rate
-        self.save_file = save_file
-        self.pretrain_flag = pretrain_flag
-        self.features_M = features_M
-        self.epoch = epoch
-        self.random_seed = random_seed
-        self.optimizer_type = optimizer_type
-        self.batch_norm = batch_norm
-        self.verbose = verbose
-
-        # performance of each epoch
-        self.train_rmse, self.valid_rmse, self.test_rmse = [], [], []
+# =============================================================================
+#         self.batch_size = batch_size
+#         self.learning_rate = learning_rate
+#         self.save_file = save_file
+#         self.pretrain_flag = pretrain_flag
+#         self.features_M = features_M
+#         self.epoch = epoch
+#         self.random_seed = random_seed
+#         self.optimizer_type = optimizer_type
+#         self.batch_norm = batch_norm
+#         self.verbose = verbose
+# 
+#         # performance of each epoch
+#         self.train_rmse, self.valid_rmse, self.test_rmse = [], [], []
+# =============================================================================
 
         # init all variables in a tensorflow graph
         self._init_graph()
 
     def _init_graph(self):
-        self.emgx = tf.placeholder(tf.float32, [None, 400, 8, 3],name='cnn_X_emg')
-        self.imux = tf.placeholder(tf.float32, [None, 400, 13,3],name='cnn_X_imu')
-        # Input data.
-        W_conv1 = weight_variable([1, 9, 1, ])
-        b_conv1 = bias_variable([32])
-        h_conv1 = tf.nn.relu(
-            tf.nn.conv2d(X_, W_conv1, strides=[1, 1, 2, 1], padding='SAME') + b_conv1)
+        self.emgl = tf.placeholder(tf.float32, [None, 402, 8, 1],name='cnn_left_emg')
+        self.emgr = tf.placeholder(tf.float32, [None, 402, 8,1],name='cnn_right_emg')
+        self.accl = tf.placeholder(tf.float32, [None, 402, 3, 1],name='cnn_left_acc')
+        self.accr = tf.placeholder(tf.float32, [None, 402, 3,1],name='cnn_right_acc')
+        self.gyrl = tf.placeholder(tf.float32, [None, 402, 3, 1],name='cnn_left_gyr')
+        self.gyrr = tf.placeholder(tf.float32, [None, 402, 3,1],name='cnn_right_gyr')
+        self.oll = tf.placeholder(tf.float32, [None, 402, 3, 1],name='cnn_left_ol')
+        self.olr = tf.placeholder(tf.float32, [None, 402, 3,1],name='cnn_right_ol')        
+        self.oril = tf.placeholder(tf.float32, [None, 400, 4, 1],name='cnn_left_ori')
+        self.orir = tf.placeholder(tf.float32, [None, 400, 4,1],name='cnn_right_ori')    
 
+# =============================================================================
+#         input is emg  402*8=>400*6*3
+# =============================================================================
+        
+        W_conv1 = self.weight_variable([3, 3, 1, 1])
+        b_conv1 = self.bias_variable([1])
+        h_conv1 = tf.nn.relu(
+            tf.nn.conv2d(self.emgl, W_conv1, strides=[1, 1, 1, 1], padding='VALID') + b_conv1)
+
+# =============================================================================
+#         input is emg  402*8=>400*6*3
+# =============================================================================
+        
+        W_conv2 = self.weight_variable([3, 3, 1, 1])
+        b_conv2 = self.bias_variable([1])
+        h_conv2 = tf.nn.relu(
+            tf.nn.conv2d(self.emgr, W_conv2, strides=[1, 1, 1, 1], padding='VALID') + b_conv2)
+        
+# =============================================================================
+#         input is acc  402*3=>400*1*3
+# =============================================================================
+        
+        W_conv3 = self.weight_variable([3, 3, 1, 1])
+        b_conv3 = self.bias_variable([1])
+        h_conv3 = tf.nn.relu(
+            tf.nn.conv2d(self.accl, W_conv3, strides=[1, 1, 1, 1], padding='VALID') + b_conv3)
+        
+# =============================================================================
+#         input is acc  402*3=>400*1*3
+# =============================================================================
+        
+        W_conv4 = self.weight_variable([3, 3, 1, 1])
+        b_conv4 = self.bias_variable([1])
+        h_conv4 = tf.nn.relu(
+            tf.nn.conv2d(self.accr, W_conv4, strides=[1, 1, 1, 1], padding='VALID') + b_conv4)
+        
+# =============================================================================
+#         input is gyr  402*3=>400*1*3
+# =============================================================================
+        
+        W_conv5 = self.weight_variable([3, 3, 1, 1])
+        b_conv5 = self.bias_variable([1])
+        h_conv5 = tf.nn.relu(
+            tf.nn.conv2d(self.gyrl, W_conv5, strides=[1, 1, 1, 1], padding='VALID') + b_conv5)
+        
+# =============================================================================
+#         input is gyr  402*3=>400*1*3
+# =============================================================================
+        
+        W_conv6 = self.weight_variable([3, 3, 1, 1])
+        b_conv6 = self.bias_variable([1])
+        h_conv6 = tf.nn.relu(
+            tf.nn.conv2d(self.gyrr, W_conv6, strides=[1, 1, 1, 1], padding='VALID') + b_conv6)
+        
+# =============================================================================
+#         input is oll  402*3=>400*1*3
+# =============================================================================
+        
+        W_conv7 = self.weight_variable([3, 3, 1, 1])
+        b_conv7 = self.bias_variable([1])
+        h_conv7 = tf.nn.relu(
+            tf.nn.conv2d(self.oll, W_conv7, strides=[1, 1, 1, 1], padding='VALID') + b_conv7)
+        
+# =============================================================================
+#         input is olr  402*3=>400*1*3
+# =============================================================================
+        
+        W_conv8 = self.weight_variable([3, 3, 1, 1])
+        b_conv8 = self.bias_variable([1])
+        h_conv8 = tf.nn.relu(
+            tf.nn.conv2d(self.olr, W_conv8, strides=[1, 1, 1, 1], padding='VALID') + b_conv8)
+        
+        multisensor1=tf.concat([h_conv1, h_conv2,h_conv3,h_conv4,h_conv5,h_conv6,h_conv7,h_conv8,self.oril,self.orir],2)
+        
+        self.multisensor = tf.TensorArray(size=0, dtype=tf.float32, dynamic_size=True)
+        self.multisensor=self.multisensor.unstack(tf.transpose(multisensor1,[1,0,2,3]))
+        #h_flat = tf.contrib.layers.flatten(self.multisensor)
+        print(self.multisensor.stack().get_shape())
+        self.n=tf.constant(400)
+        self.i=tf.constant(0)
+        
+        temp=self.multisensor.read(self.i)
+        result = tf.while_loop(self.cond, self.body, loop_vars=[self.i+1, temp])
+        time,out=result.stack()
+        print(out.get_shape())
         # Model.
 
         # _________out _________
@@ -92,6 +182,17 @@ class SLR():
             print("#params: %d" % total_parameters)
             logging.info("#params: %d" % total_parameters)
 
+    
+    def cond(self,i, a):
+        return i < self.n
+    
+    def body(self,i, a):
+        temp=self.multisensor.read(self.i)
+        W_fc = self.weight_variable([26, 10])
+        b_fc = self.bias_variable([10])
+        h_fc = tf.nn.softmax(tf.matmul(temp, W_fc) + b_fc)
+        return i + 1, tf.concat([h_fc,a],2)
+        
     def _init_session(self):
         # adaptively growing video memory
         config = tf.ConfigProto()
