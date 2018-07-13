@@ -257,7 +257,7 @@ class SLR():
                                          np.ones(num_example) * max(y_true))  # bound the higher values
         RMSE = math.sqrt(mean_squared_error(y_true, predictions_bounded))
 
-        return RMSE
+        return RMSE     
 
 def make_save_file(args):
     pretrain_path = '../pretrain/fm_%s_%d' % (args.dataset, args.hidden_factor)
@@ -276,16 +276,17 @@ def make_log_file(args):
 
 def train(args):
     # Data loading
-    data = DATA.LoadData(args.path, args.dataset)
+    emg_train,emg_test,imu_train,imu_test,y_train,y_test=DATA.LoadData("data").getdata()
+
     if args.verbose > 0:
         #下面的需要改
         print(
-            "FM: dataset=%s, factors=%d, #epoch=%d, batch=%d, lr=%.4f, lambda=%.1e, keep=%.2f, optimizer=%s, batch_norm=%d"
-            % (args.dataset, args.hidden_factor, args.epoch, args.batch_size, args.lr, args.lamda, args.keep,
+            "FM:   #epoch=%d, batch=%d, lr=%.4f,  optimizer=%s, batch_norm=%d"
+            % (  args.epoch, args.batch_size, args.lr, 
                args.optimizer, args.batch_norm))
         logging.info(
-            "FM: dataset=%s, factors=%d, #epoch=%d, batch=%d, lr=%.4f, lambda=%.1e, keep=%.2f, optimizer=%s, batch_norm=%d"
-            % (args.dataset, args.hidden_factor, args.epoch, args.batch_size, args.lr, args.lamda, args.keep,
+            "FM:   #epoch=%d, batch=%d, lr=%.4f,  optimizer=%s, batch_norm=%d"
+            % ( args.epoch, args.batch_size, args.lr, 
                args.optimizer, args.batch_norm))
 
     # Training
@@ -305,7 +306,7 @@ def train(args):
 
 def evaluate(args):
     # load test data
-    data = DATA.LoadData(args.path, args.dataset).Test_data
+    data = DATA.LoadData(args.path).Test_data
     save_file = make_save_file(args)
 
     # load the graph
@@ -350,10 +351,11 @@ def evaluate(args):
     logging.info("Test RMSE: %.4f" % (RMSE))
 
 if __name__ == '__main__':
+
     args = parse_args()
 
-    log_file = make_log_file(args)
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG, filename=log_file)
+    #log_file = make_log_file(args)
+    #logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG, filename=log_file)
 
     # initialize the optimal parameters
     # if args.mla:
@@ -366,6 +368,6 @@ if __name__ == '__main__':
     #     args.batch_norm = 1
 
     if args.process == 'train':
-        train(args)
-    elif args.process == 'evaluate':
-        evaluate(args)
+       train(args)
+    #elif args.process == 'evaluate':
+    #    evaluate(args)
