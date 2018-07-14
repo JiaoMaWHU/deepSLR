@@ -144,18 +144,28 @@ class SLR():
             tf.nn.conv2d(self.olr, W_conv8, strides=[1, 1, 1, 1], padding='VALID') + b_conv8)
         
         multisensor1=tf.concat([h_conv1, h_conv2,h_conv3,h_conv4,h_conv5,h_conv6,h_conv7,h_conv8,self.oril,self.orir],2)
+        multisensor=tf.transpose(tf.reduce_sum(multisensor1, reduction_indices=[3]),[1,0,2])
+        print(multisensor.get_shape())
+# =============================================================================
+#         h_flat = tf.contrib.layers.flatten(multisensor1)
+#         print(h_flat.get_shape()) 
+#         self.multisensor = tf.TensorArray(size=0, dtype=tf.float32, dynamic_size=True)
+#         self.multisensor=self.multisensor.unstack(tf.transpose(multisensor1,[1,0,2,3]))
+#         #h_flat = tf.contrib.layers.flatten(self.multisensor)
+#         print(self.multisensor.stack().get_shape())
+#         self.n=tf.constant(400)
+#         self.i=tf.constant(0)
+#         
+#         temp=self.multisensor.read(self.i)
+# =============================================================================
+        W_fc = self.weight_variable([400,26,10])
+        b_fc = self.bias_variable([10])
+        h_fc = tf.nn.softmax(tf.matmul( multisensor,W_fc) + b_fc)
+        print(h_fc.get_shape())
+        #result = tf.while_loop(self.cond, self.body, loop_vars=[self.i+1, temp])
+        #time,out=result.stack()
+        #print(out.get_shape())
         
-        self.multisensor = tf.TensorArray(size=0, dtype=tf.float32, dynamic_size=True)
-        self.multisensor=self.multisensor.unstack(tf.transpose(multisensor1,[1,0,2,3]))
-        #h_flat = tf.contrib.layers.flatten(self.multisensor)
-        print(self.multisensor.stack().get_shape())
-        self.n=tf.constant(400)
-        self.i=tf.constant(0)
-        
-        temp=self.multisensor.read(self.i)
-        result = tf.while_loop(self.cond, self.body, loop_vars=[self.i+1, temp])
-        time,out=result.stack()
-        print(out.get_shape())
         # Model.
 
         # _________out _________
@@ -182,16 +192,7 @@ class SLR():
             print("#params: %d" % total_parameters)
             logging.info("#params: %d" % total_parameters)
 
-    
-    def cond(self,i, a):
-        return i < self.n
-    
-    def body(self,i, a):
-        temp=self.multisensor.read(self.i)
-        W_fc = self.weight_variable([26, 10])
-        b_fc = self.bias_variable([10])
-        h_fc = tf.nn.softmax(tf.matmul(temp, W_fc) + b_fc)
-        return i + 1, tf.concat([h_fc,a],2)
+
         
     def _init_session(self):
         # adaptively growing video memory
