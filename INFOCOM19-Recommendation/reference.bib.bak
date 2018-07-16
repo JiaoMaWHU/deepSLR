@@ -1,0 +1,350 @@
+
+@article{huang2018video,
+  title={Video-based sign language recognition without temporal segmentation},
+  author={Huang, Jie and Zhou, Wengang and Zhang, Qilin and Li, Houqiang and Li, Weiping},
+  journal={arXiv preprint arXiv:1801.10111},
+  year={2018}
+}
+
+@inproceedings{neto2018sign,
+  title={Sign Language Recognition Based on 3D Convolutional Neural Networks},
+  author={Neto, Geovane M Ramos and Junior, Geraldo Braz and de Almeida, Jo{\~a}o Dallyson Sousa and de Paiva, Anselmo Cardoso},
+  booktitle={International Conference Image Analysis and Recognition},
+  pages={399--407},
+  year={2018},
+  organization={Springer}
+}
+
+
+@inproceedings{cui2017recurrent,
+  title={Recurrent convolutional neural networks for continuous sign language recognition by staged optimization},
+  author={Cui, Runpeng and Liu, Hu and Zhang, Changshui},
+  booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2017}
+}
+
+@article{tsironi2016gesture,
+  title={Gesture recognition with a convolutional long short-term memory recurrent neural network},
+  author={Tsironi, Eleni and Barros, Pablo and Wermter, Stefan},
+  journal={Bruges, Belgium},
+  volume={2},
+  year={2016}
+}
+
+
+@inproceedings{joshi2017personalizing,
+  title={Personalizing gesture recognition using hierarchical bayesian neural networks},
+  author={Joshi, Ajjen and Ghosh, Soumya and Betke, Margrit and Sclaroff, Stan and Pfister, Hanspeter},
+  booktitle={30TH IEEE CONFERENCE ON COMPUTER VISION AND PATTERN RECOGNITION (CVPR 2017)},
+  year={2017},
+  organization={IEEE}
+}
+
+@inproceedings{dong2015american,
+  title={American sign language alphabet recognition using microsoft kinect},
+  author={Dong, Cao and Leu, Ming C and Yin, Zhaozheng},
+  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition workshops},
+  pages={44--52},
+  year={2015}
+}
+
+@inproceedings{mao2016cat,
+  title={CAT: high-precision acoustic motion tracking},
+  author={Mao, Wenguang and He, Jian and Qiu, Lili},
+  booktitle={Proceedings of the 22nd Annual International Conference on Mobile Computing and Networking},
+  pages={69--81},
+  year={2016},
+  organization={ACM}
+}
+
+@inproceedings{nandakumar2016fingerio,
+  title={Fingerio: Using active sonar for fine-grained finger tracking},
+  author={Nandakumar, Rajalakshmi and Iyer, Vikram and Tan, Desney and Gollakota, Shyamnath},
+  booktitle={Proceedings of the 2016 CHI Conference on Human Factors in Computing Systems},
+  pages={1515--1525},
+  year={2016},
+  organization={ACM}
+}
+
+
+@inproceedings{zhao2018ppg,
+  title={PPG-based Finger-level Gesture Recognition Leveraging Wearables},
+  author={Tianming Zhao, Jian Liu, Yan Wang, Hongbo Liu and Yingying Chen},
+  booktitle={IEEE International Conference on Computer Communications (INFOCOM 2018)},
+  year={2018},
+  organization={IEEE}
+}
+
+@inproceedings{zhang2017doppler,
+  title={Doppler-Radar Based Hand Gesture Recognition System Using Convolutional Neural Networks},
+  author={Zhang, Jiajun and Tao, Jinkun and Shi, Zhiguo},
+  booktitle={International Conference in Communications, Signal Processing, and Systems},
+  pages={1096--1113},
+  year={2017},
+  organization={Springer}
+}
+
+
+@inproceedings{sun2015widraw,
+  title={Widraw: Enabling hands-free drawing in the air on commodity wifi devices},
+  author={Sun, Li and Sen, Souvik and Koutsonikolas, Dimitrios and Kim, Kyu-Han},
+  booktitle={Proceedings of the 21st Annual International Conference on Mobile Computing and Networking},
+  pages={77--89},
+  year={2015},
+  organization={ACM}
+}
+
+@inproceedings{pu2013whole,
+  title={Whole-home gesture recognition using wireless signals},
+  author={Pu, Qifan and Gupta, Sidhant and Gollakota, Shyamnath and Patel, Shwetak},
+  booktitle={Proceedings of the 19th annual international conference on Mobile computing \& networking},
+  pages={27--38},
+  year={2013},
+  organization={ACM}
+}
+
+
+@article{asadzadeh2012gesture,
+  title={Gesture recognition using RFID technology},
+  author={Asadzadeh, Parvin and Kulik, Lars and Tanin, Egemen},
+  journal={Personal and Ubiquitous Computing},
+  volume={16},
+  number={3},
+  pages={225--234},
+  year={2012},
+  publisher={Springer-Verlag}
+}
+
+
+@inproceedings{swee2007wireless,
+  title={Wireless data gloves Malay sign language recognition system},
+  author={Swee, Tan Tian and Ariff, AK and Salleh, Sh-Hussain and Seng, Siew Kean and Huat, Leong Seng},
+  booktitle={Information, Communications \& Signal Processing, 2007 6th International Conference on},
+  pages={1--4},
+  year={2007},
+  organization={IEEE}
+}
+
+
+@inproceedings{mantyjarvi2004enabling,
+  title={Enabling fast and effortless customisation in accelerometer based gesture interaction},
+  author={M{\"a}ntyj{\"a}rvi, Jani and Kela, Juha and Korpip{\"a}{\"a}, Panu and Kallio, Sanna},
+  booktitle={Proceedings of the 3rd international conference on Mobile and ubiquitous multimedia},
+  pages={25--31},
+  year={2004},
+  organization={ACM}
+}
+
+
+
+@inproceedings{mehdi2002sign,
+  title={Sign language recognition using sensor gloves},
+  author={Mehdi, Syed Atif and Khan, Yasir Niaz},
+  booktitle={Neural Information Processing, 2002. ICONIP'02. Proceedings of the 9th International Conference on},
+  volume={5},
+  pages={2204--2206},
+  year={2002},
+  organization={IEEE}
+}
+
+@inproceedings{kosmidou2006evaluation,
+  title={Evaluation of surface EMG features for the recognition of American Sign Language gestures},
+  author={Kosmidou, Vasiliki E and Hadjileontiadis, Leontios J and Panas, Stavros M},
+  booktitle={Engineering in Medicine and Biology Society, 2006. EMBS'06. 28th Annual International Conference of the IEEE},
+  pages={6197--6200},
+  year={2006},
+  organization={IEEE}
+}
+
+
+@Misc{timmurphy.org,
+howpublished = {Thalmic Labs. (2013). MYO¡ªGesture control armband by Thalmic Labs
+[Online]. Available:\url{http://www.sensorly.com/}},
+}
+
+@inproceedings{khushaba2007channel,
+  title={Channel and feature selection in multifunction myoelectric control},
+  author={Khushaba, Rami N and Al-Jumaily, Adel},
+  booktitle={Engineering in Medicine and Biology Society, 2007. EMBS 2007. 29th Annual International Conference of the IEEE},
+  pages={5182--5185},
+  year={2007},
+  organization={IEEE}
+}
+
+@inproceedings{mantyjarvi2004enabling,
+  title={Enabling fast and effortless customisation in accelerometer based gesture interaction},
+  author={M{\"a}ntyj{\"a}rvi, Jani and Kela, Juha and Korpip{\"a}{\"a}, Panu and Kallio, Sanna},
+  booktitle={Proceedings of the 3rd international conference on Mobile and ubiquitous multimedia},
+  pages={25--31},
+  year={2004},
+  organization={ACM}
+}
+
+@article{kela2006accelerometer,
+  title={Accelerometer-based gesture control for a design environment},
+  author={Kela, Juha and Korpip{\"a}{\"a}, Panu and M{\"a}ntyj{\"a}rvi, Jani and Kallio, Sanna and Savino, Giuseppe and Jozzo, Luca and Marca, Di},
+  journal={Personal and Ubiquitous Computing},
+  volume={10},
+  number={5},
+  pages={285--299},
+  year={2006},
+  publisher={Springer-Verlag}
+}
+
+
+@article{ren2016robust,
+  title={Robust part-based hand gesture recognition using kinect sensor},
+  author={Ren, Zhou and Yuan, Junsong and Meng, Jingjing and Zhang, Zhengyou},
+  journal={IEEE Trasactions on Multimedia},
+  volume={15},
+  year={2016}
+}
+
+@inproceedings{marin2014hand,
+  title={Hand gesture recognition with leap motion and kinect devices},
+  author={Marin, Giulio and Dominio, Fabio and Zanuttigh, Pietro},
+  booktitle={Image Processing (ICIP), 2014 IEEE International Conference on},
+  pages={1565--1569},
+  year={2014},
+  organization={IEEE}
+}
+
+
+@article{mitra2007gesture,
+  title={Gesture recognition: A survey},
+  author={Mitra, Sushmita and Acharya, Tinku},
+  journal={IEEE Transactions on Systems, Man, and Cybernetics, Part C (Applications and Reviews)},
+  volume={37},
+  number={3},
+  pages={311--324},
+  year={2007},
+  publisher={IEEE}
+}
+
+@article{starner1998real,
+  title={Real-time american sign language recognition using desk and wearable computer based video},
+  author={Starner, Thad and Weaver, Joshua and Pentland, Alex},
+  journal={IEEE Transactions on pattern analysis and machine intelligence},
+  volume={20},
+  number={12},
+  pages={1371--1375},
+  year={1998},
+  publisher={IEEE}
+}
+
+@article{vogler1998asl,
+  title={ASL recognition based on a coupling between HMMs and 3D motion analysis},
+  author={Vogler, Christian and Metaxas, Dimitris},
+  year={1998}
+}
+
+@article{zhang2011framework,
+  title={A framework for hand gesture recognition based on accelerometer and EMG sensors},
+  author={Zhang, Xu and Chen, Xiang and Li, Yun and Lantz, Vuokko and Wang, Kongqiao and Yang, Jihai},
+  journal={IEEE Transactions on Systems, Man, and Cybernetics-Part A: Systems and Humans},
+  volume={41},
+  number={6},
+  pages={1064--1076},
+  year={2011},
+  publisher={IEEE}
+}
+
+
+@inproceedings{li2015human,
+  title={Human sensing using visible light communication},
+  author={Li, Tianxing and An, Chuankai and Tian, Zhao and Campbell, Andrew T and Zhou, Xia},
+  booktitle={Proceedings of the 21st Annual International Conference on Mobile Computing and Networking},
+  pages={331--344},
+  year={2015},
+  organization={ACM}
+}
+
+@inproceedings{adib2015multi,
+  title={Multi-Person Localization via RF Body Reflections.},
+  author={Adib, Fadel and Kabelac, Zachary and Katabi, Dina},
+  booktitle={NSDI},
+  pages={279--292},
+  year={2015}
+}
+
+@inproceedings{adib20143d,
+  title={3D Tracking via Body Radio Reflections.},
+  author={Adib, Fadel and Kabelac, Zachary and Katabi, Dina and Miller, Robert C},
+  booktitle={NSDI},
+  volume={14},
+  pages={317--329},
+  year={2014}
+}
+
+@article{lu2014hand,
+  title={A Hand Gesture Recognition Framework and Wearable Gesture-Based Interaction Prototype for Mobile Devices.},
+  author={Lu, Zhiyuan and Chen, Xiang and Li, Qiang and Zhang, Xu and Zhou, Ping},
+  journal={IEEE Trans. Human-Machine Systems},
+  volume={44},
+  number={2},
+  pages={293--299},
+  year={2014}
+}
+
+@inproceedings{zhang2015tomo,
+  title={Tomo: Wearable, low-cost electrical impedance tomography for hand gesture recognition},
+  author={Zhang, Yang and Harrison, Chris},
+  booktitle={Proceedings of the 28th Annual ACM Symposium on User Interface Software \& Technology},
+  pages={167--173},
+  year={2015},
+  organization={ACM}
+}
+
+@Misc{population.org,
+howpublished = {Answer:\url{http://www.answers.com/}},
+}
+
+@article{zhang2015auxiliary,
+  title={Auxiliary training information assisted visual recognition},
+  author={Zhang, Qilin and Hua, Gang and Liu, Wei and Liu, Zicheng and Zhang, Zhengyou},
+  journal={IPSJ Transactions on Computer Vision and Applications},
+  volume={7},
+  pages={138--150},
+  year={2015},
+  publisher={Information Processing Society of Japan}
+}
+
+@inproceedings{zhang2015multi,
+  title={Multi-view visual recognition of imperfect testing data},
+  author={Zhang, Qilin and Hua, Gang},
+  booktitle={Proceedings of the 23rd ACM international conference on Multimedia},
+  pages={561--570},
+  year={2015},
+  organization={ACM}
+}
+
+@inproceedings{zhang2014can,
+  title={Can visual recognition benefit from auxiliary information in training?},
+  author={Zhang, Qilin and Hua, Gang and Liu, Wei and Liu, Zicheng and Zhang, Zhengyou},
+  booktitle={Asian Conference on Computer Vision},
+  pages={65--80},
+  year={2014},
+  organization={Springer}
+}
+
+@article{huang2005gaussian,
+  title={A Gaussian mixture model based classification scheme for myoelectric control of powered upper limb prostheses},
+  author={Huang, Yonghong and Englehart, Kevin B and Hudgins, Bernard and Chan, Adrian DC},
+  journal={IEEE Transactions on Biomedical Engineering},
+  volume={52},
+  number={11},
+  pages={1801--1811},
+  year={2005},
+  publisher={IEEE}
+}
+
+@article{janota2015improving,
+  title={Improving the precision and speed of Euler angles computation from low-cost rotation sensor data},
+  author={Janota, Ale{\v{s}} and {\v{S}}im{\'a}k, Vojtech and Nemec, Du{\v{s}}an and Hrb{\v{c}}ek, Jozef},
+  journal={Sensors},
+  volume={15},
+  number={3},
+  pages={7016--7039},
+  year={2015},
+  publisher={Multidisciplinary Digital Publishing Institute}
+}

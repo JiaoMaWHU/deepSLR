@@ -1,0 +1,335 @@
+\documentclass[10pt, conference, letterpaper]{IEEEtran}
+\usepackage{mathbbold}
+\usepackage{amsfonts}
+\usepackage{}
+\usepackage{latexsym,bm,amsmath,amssymb}
+\usepackage{cite}
+\usepackage{algorithm}
+\usepackage{multirow}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{color}
+\usepackage{balance}
+
+\newtheorem{theorem}{\textbf{Theorem}}
+\newtheorem{definition}{\textbf{Definition}}
+\newtheorem{lemma}{\textbf{Lemma}}
+\newtheorem{Proof}{\textbf{Proof}}
+\newtheorem{problem}{\textbf{Problem}}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\renewcommand{\algorithmicrequire}{ \textbf{Input:}} %Use Input in the format of Algorithm
+\renewcommand{\algorithmicensure}{ \textbf{Output:}} %UseOutput in the format of Algorithm
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+\begin{document}
+
+\title{Attention-based Sign Language Recognition via Multisensor Fusion}
+%DeepSLR: A Deep Learning Approach for Sign Language Recognition via Multisensor Fusion
+
+%author names and affiliations
+
+%\author{\IEEEauthorblockN{Zhibo Wang$^{\dagger,\ddagger,\wr}$, Yongquan Zhang$^{\dagger}$, Honglong Chen$^{\pounds}$, Zhetao Li$^{\P,\ast}$\footnotetext[1], and Feng Xia$^{\S}$}
+%\IEEEauthorblockA{$^{\dagger}$School of Cyber Science and Engineering, School of Computer, Wuhan University, P. R. China}
+%\IEEEauthorblockA{$^{\ddagger}$Jiangsu Key Lab. of Big Data Security \& Intelligent Processing, NJUPT, P. R. China}
+%\IEEEauthorblockA{$^{\wr}$Key Lab of Aerospace Information Security and Trusted Computing, Wuhan University, P. R. China}
+%\IEEEauthorblockA{$^{\pounds}$College of Information and Control Engineering, China University of Petroleum, P. R. China}
+%\IEEEauthorblockA{$^{\P}$College of Information Engineering, Xiangtan University, P. R. China}
+%\IEEEauthorblockA{$^{\S}$School of Software, Dalian University of Technology, P. R. China}
+%Email: \{zbwang, dellenzhang\}@whu.edu.cn, \{honglongchen1984, liztchina\}@gmail.com, f.xia@ieee.org}
+\maketitle
+%\footnotetext[1]{Corresponding author.}
+
+
+\begin{abstract}
+%At present, there are the following problems in the existing SLR, i.e., split SLR that could not solve practical problems in practical use, and which was generally difficult to continuously identify the entire sentences. Existing SLR was based on vision (e.g., video cameras or IR equipment), acoustic or optical signals (e.g., sound, RF or ambient light). Unfortunately, these solutions are particularly unpractical and cumbersome, in addition there is no guarantee of the integrity of the two-hand SLR semantics. Coincidentally, there is another type of body sensor based (e.g., Electromyography, Electrical Impedance Tomography sensor, and electrocardiogram sensor) approach that is similar to our solution to SLR. What's worse is that their solutions are generally difficult to identify consecutive sentences without segmentation.{\color{red}{}}
+
+Nowadays, tens of millions of deaf and mute people around the world use sign language for daily communication, whereas most ordinary people have little knowledge of sign language. Therefore, an effective and accurate method of Sign Language Recognition (SLR) is very important and practical to bridge the communicative gap between two groups, such as between hearing impaired people and ordinary people. Existing SLR methods are based on vision (e.g., video cameras or IR equipment), acoustic or optical signals (e.g., sound, RF or ambient light). However, these solutions use only one or two type of sensor information to model the SLR. They neglected the multi-level, multi-space information complementation and combinatorial optimization processing of multiple sensors information. More seriously, the existing SLR researches are generally poor performance in continuously identify the entire sentences without word by word segmentation.
+
+In order to address the problems above, we adopt inertial measurement unit (IMU) and multichannel surface electromyogram (sEMG) sensors as the foundation for collecting raw data, and the use of multi-source information fusion technology ensures that SLR of coarse-grained and fine-grained sign language recognition. Furthermore, we propose a novel SLR framework: DeepSLR, which can continuously translate the entire sentence instead of word by word segmentation. DeepSLR consists of three components: data preprocessing algorithm for feature extraction, a three-stream Convolutional Neural Network (CNN) and a two-stream Long Short-Term Memory (LSTM) for feature fusion, and a XXX-Hierarchical Attention Network (HAN) (/XXX attention model) for sentence generation without word by word segmentation. In addition, we achieved two-hand sign recognition to ensure the integrity and practicability of SLR. Experimental.....
+
+\end{abstract}
+
+\IEEEpeerreviewmaketitle
+
+\section{Introduction}
+According to statistics \cite{population.org}, approximately 28 to 32 million deaf and hard of hearing people live in the USA, and there are roughly 65-70 million people in the world who are hearing impaired. The people that need to use sign language in the world should be around 260 million to 280 million based on  the estimation that  each deaf person has four immediate family members. In addition, special education workers, service industries, government departments and sign language lovers are also a large group of people who use sign language. What's more, sign language recognition (SLR) is a intelligent, convenient and practical way of human-computer interaction in gesture recognition. Compared with other gesture control and gesture recognition, SLR is more delicate and complex. Because sign language is composed of a specific set of fine-grained finger gestures and coarse-grained sign gestures. Many existing researches have attempted to acquire and translate sign language through cameras or infrared cameras \cite{huang2018video,neto2018sign,joshi2017personalizing,cui2017recurrent,tsironi2016gesture,dong2015american}, microphones \cite{mao2016cat,nandakumar2016fingerio} , photoplethysmography (PPG) \cite{zhao2018ppg}, radio frequency (RF) \cite{zhang2017doppler,sun2015widraw,pu2013whole,asadzadeh2012gesture} and sensing gloves \cite{swee2007wireless,mantyjarvi2004enabling,mehdi2002sign}. The approaches using cameras fail to recognize gestures in poor lighting conditions. Microphones are generally lightweight devices, but they are very sensitive to noise in real-world environments. The PPG-based approach cannot guarantee the integrity of SLR because which can only recognize fine-grained finger gesture and lack the key component of coarse-grained gesture tracks in sign language. RF usually requires very bulky equipment and requires extra cost and manpower of installation. Using sensing gloves for gesture recognition requires the user to wear a cumbersome data glove to capture sign language gestures. This hinders the convenience and naturalness of human-computer interaction (HCI) \cite{mitra2007gesture}.
+
+\begin{figure}[!t]
+  \centering
+  \vspace{-3mm}
+  \includegraphics[width=1.0\columnwidth]{pics/1.pdf}
+  \caption{Illustration of the sign language recognition using multisensor fusion.}
+  \label{fig:word}
+
+\end{figure}
+\vspace{-1mm}
+%We should choose and take advantage of multi-sensors for addressing complex sign language, instead of using one or two type sensor information for characterizing sign language.It is a difficulty in SLR that feature extraction is performed on the raw output data of the sensor (discrete continuous time function data, output vector or a direct attribute description), and a feature vector that it represent the observed data is extracted.The sensor data of each source is synthesized to obtain a consistent interpretation and description of the target.
+In order to address the problems above, it is necessary to design a continuous SLR based on multi-sensor fusion technology, and there are following challenges need to be addressed. A key challenge in SLR is the design of descriptors that reliably captures fine-grained finger motions and coarse-grained arm movements. In addition, it is difficult for SLR to extract effective information from the raw output data of the sensors (discrete continuous time function data, output vector or a direct attribute description) and to extract the feature vectors that which represent the observed data is extracted. It is also an obstacle that how to make feature fusion to obtain a consistent interpretation and description of the target from multivariate feature data. The most important things for continuous SLR is that translates entire sentences rather than split SLR for word by word recognition. As illustrated in Figure 1, a armband wearable device could leverage its sensors fusion information to capture and convert sign language into audio, which will highly help people communicate with those who have little knowledge of sign language.
+
+In this paper, the use of surface electromyogram (sEMG) signal and inertial measurement unit (IMU) signal acquired from the users forearm is proposed for the recognition of SLR gestures. Electromyographic signals (EMG) are a temporal and spatial superposition of motor unit action potentials (MUAP) in many muscle fibers. sEMG is a combined effect of superficial muscle EMG and neural stem activity on the surface of the skin, which can reflect neuromuscular activity to a certain extent. Compared with needle electrode EMG, sEMG is non-invasive in measurement. The IMU is a device that measures the three-axis attitude angle (or angular rate) and acceleration of an object. The IMU sensor combines precision gyroscope (GYRO), accelerometer (ACC), and magnetometer(MAGN) in a multi-axis fashion. The Myo \cite{timmurphy.org} technology has the potential to rapidly accelerate the way that the hearing impaired communicate with those who do not know the language. Wearable features may be destined for Myo's dominant battlefield in the mobile space, such as interaction with Google Glass.
+
+A key challenge in SLR is the feature extraction that reliably captures finger movements and gestures. Various kinds of features for the classification of the EMG have been considered in the literature \cite{kosmidou2006evaluation,khushaba2007channel}. IMU signals are calculated in time-domain eigenvector sequence \cite{mantyjarvi2004enabling,kela2006accelerometer}. Inspired by the success in wavelet transform (WT), we design a XXX algorithm for feature extraction.
+
+Fusion of sEMG and IMU signals is necessary for coarse and fine grained gesture recognition. Motivated by language translation with Long-Short Term Memory (LSTM), we design a three-stream Convolutional Neural Network (CNN) and a two-stream LSTM for feature fusion.
+
+Continuous sentence recognition is also a difficulty in continuous SLR. The common existing continuous SLR is to decompose it into isolated word recognition, which involves the difficulty of active segmentation. Our scheme avoid the active segmentation with Hierarchical Attention Network (HAN), an extension to LSTM by considering structure information and attention mechanism. We have designed a new XXX-HAN model (XXX-attention model), which is fed with the sEMG signals and the IMU signals and outputs the complete sentence without word by word segmentation.
+
+%In summary, our main contributions are summarized as follows:
+The main contributions of DeepSLR are summarized as follows:
+
+\begin{itemize}
+
+  \item A new DeepSLR framework for continuous SLR without word-by-word translation. The DeepSLR are designed to be computationally framework with high recognition accuracy. Active segment detection is very important since
+  \item An active feature extraction scheme, overcoming the difficulties in sEMG signal denoise and the synchronization of active segments in sEMG and IMU signals, is presented.
+  \item A new a three-stream CNN and a two-stream LSTM that based on fusion of sEMG and IMU signals is proposed.
+  \item (XXX-HAN model / XXX-attention model / experiment)
+\end{itemize}
+
+The rest of the paper is organized ad follows. We discuss the relate work in Section II.
+
+\section{Related Work}
+\label{sec:related_work}
+%In this section, a brief review of current techniques for SLR and continuous SLR.
+According to the technology used to capture gestures, traditional gesture recognition studies can be divided into the following categories: vision-based, acoustic-based, optic-based, RF-based, and biosensor-based.
+
+\vspace{1mm}
+\textbf{Vision Based:} Computer vision-based methods can effectively track and recognize gestures through the camera \cite{huang2018video,neto2018sign,joshi2017personalizing,cui2017recurrent,tsironi2016gesture,ren2016robust,dong2015american,marin2014hand}. While, these research methods are very sensitive to the environment such as illumination, background texture and color \cite{mitra2007gesture,mantyjarvi2004enabling}. In order to improve the accuracy and robustness of vision-based methods, some previous studies
+took advantage of  colored gloves \cite{starner1998real} or multiple cameras \cite{vogler1998asl} for accurate hand gesture tracking, segmentation, and recognition \cite{zhang2011framework}.
+
+\textbf{Acoustic Based:} Acoustic-based \cite{mao2016cat,nandakumar2016fingerio} approaches can acquire gesture information through speakers and microphones. Nevertheless, the sound signals in our actual use environment are strongly noisy, and the ambient noise decibels tend to be much higher than the information about the dynamics of the gestures.
+
+\textbf{Optic Based:}Optic-based \cite{zhao2018ppg,li2015human} methods require specific light sensor devices. Moreover, which cannot achieve complete SLR. Because complete sign language includes fine-grained finger movements and coarse-grained gesture trajectories, it \cite{zhao2018ppg} only achieves finger-level recognition.
+
+\textbf{RF Based:}RF-based SLR has received much attention from many scholars. For example, Zhang \cite{zhang2017doppler} propose to use Doppler-Radar (DR) and CNN to achieve symbol recognition. In addition, some others use the multi-path effects of Frequency-Modulated Continuous-Wave (FMCW) \cite{adib2015multi,adib20143d} signals, channel state information (CSI) \cite{sun2015widraw,pu2013whole} and the Universal Software Radio Peripheral (USRP) in the environment for SLR. However, these methods require a certain amount of space and dedicated equipment to ensure experimental results, so they are not practical.
+
+\textbf{Body Sensor Based:}Some previous studies based on body sensors have used sEMG sensors \cite{kosmidou2006evaluation,lu2014hand}, or Electrical Impedance Tomography (EIT) \cite{zhang2015tomo} sensors or electrocardiogram (ECG) \cite{zhang2011framework} sensors alone to obtain gesture information. A step further, there are also some ways to combine EMG signal and accelerometer(ACC) signal to obtain gesture information. But they ignore the very important point that the composition of sign language movements is very complicated. The EMG signal can only represent the activity of the finger, and the ACC signal can only represent some simple gesture trajectories on the horizontal and vertical axes. The attitude calculation cannot be completed by the acceleration sensor alone.
+
+Different from previous work, we propose a approach of multi-information fusion in the recognition of two-hand sign language. The 8-channel medical sEMG sensor captures fine-grained finger movements. High sensitivity 9-axis IMU sensor (i.e., triaxial gyroscope, triaxial accelerometer and triaxial magnetometer) captures coarse-grained gesture movements. The sEMG signal represents fine finger movement. The acceleration signals changing with time can directly represent patterns of hand gesture trajectories. The gyroscope can directly represent the rotation mode of the arm by measuring its own rotation transformation. The magnetometer can orient the arm (east, north, south, and north) and modify the static cumulative error of the gyroscope. Therefore, in our system, due to error correction and error compensation, it is often combined with the above sensors to make full use of the characteristics of each sensor to make the final calculation result more accurate. What's more, The Euler angle (EULA) can be calculated by a MAGN and an ACC. In order to avoid the problem of the gimbal deadlock, we can calculate the quaternion from the EULA. Latent space model is a popular tool to bridge the semantic gap between two modalities
+
+
+
+
+\vspace{1mm}
+
+\section{System Overview and Problem Formulation}
+\label{sec:problem}
+In this section, we first present the high-level overview of attention-based continuous SLR systems without word by word segmentation via multisensor fusion, and then describe the multi-source information fusion design problem and the continuous sentence recognition problem.
+
+\begin{figure*}[!ht]
+  \centering
+  \includegraphics[width=0.9\textwidth]{pics/SystemOverview.pdf}
+  \caption{System Overview}
+  \label{fig:overview}
+  \vspace{-3mm}
+\end{figure*}
+
+\subsection{System Overview}
+As shown in Figure 2, there are three main components involved in our system, namely Feature Extraction, Feature Fusion and Sentence Recognition.
+
+When the user is using sign language, the multichannel signals recorded in the process of the hand and finger gesture actions which represent meaningful hand gestures consists of not only the gestures signal that we are interested in, but also the trashy noise. Thus, we need to extract these gestures signals from noise at first. Moreover, sEMG features have included a variety of time-domain, frequency-domain, and time-frequency-domain features. In addition to the time-domain feature vector sequences as calculated earlier for IMU signals, we further extracted a series of statistical features, such as the mean value and standard deviation (SD) of each IMU axis. What's more, normalized multichannel signals are regarded as feature vector sequences as such.
+
+After that, the processed data streams which contains sEMG signals and IMU signals are fed into the next module for feature fusion. We design a combination based on a two-stream CNN and a LSTM to perform feature fusion which is a class of deep, feed-forward artificial neural network, and has been successfully applied to analyse sequence models. The input to the network is a feature vector that represents the complete gesture information. The upper stream of CNN is designed to fuse sEMG sensor information that represents fine-grained finger activity. The lower stream of CNN focuses on the fusion of IMU sensor information that represents coarse-grained hand gestures/locations. All multi-channel information of the left and right hand is fused by the LSTM into a feature vector (specific dimensions*****).
+
+Finally, the merged features will be synthesized into complete sentences word-by-word in the ``Sentence Recognition" module. Latent space model is a tool to bridge the semantic gap between two modalities \cite{zhang2015auxiliary,zhang2015multi,zhang2014can}. The proposed attention-based framework. input multichannel signals paired with marked sentence. Each sentence is encoded with one-hot vector. We utilize HAN decodes the hidden vector representation to a sentence word-by-word.
+
+\subsection{Problem Formulation}
+Give a user $u$, the set of gestures at time $t$ he has made is denoted by
+\begin{equation}
+\label{definition}
+\begin{aligned}
+ G_u(L,R)=\{&\sum_{i=1}^{N_c}sEMG_c(t),\sum_{i=1}^{N_c}ACC_c(t),\sum_{i=1}^{N_c}GYRO_c(t),\\
+ &\sum_{i=1}^{N_c}ORI_c(t),\sum_{i=1}^{N_c}ORIE_c(t)\},
+\end{aligned}
+\end{equation}
+where L and R represent multichannel information for left and right hand. $c_{th}$ is the index of the channel and $N_c$ is the number of channels. $sEMG$ is the surface EMG signal. $ACC$ is the accelerometer signal. $GYRO$ is the gyroscope signal. $ORI$ is the orientation signal. $ORIE$ is the orientationEuler signal.
+
+The original multichannel gesture data will be fed into the XXX-attention model after feature extraction and feature fusion. XXX-attention model is an extension to LSTM, which combines the attention mechanism based on the structure of input. In the proposed DeepSLR, the optimization function takes into account both the multichannel signal-sentence relevance error $E_\alpha$ in a latent space, and a recognition error $E_\beta$ by XXX-attention model. Note the sentence recognition is continuous SLR without word-by-word segmentation, which makes the continuous SLR problem more challenging than traditional SLR problems.
+
+So this problem can be expressed as follows.
+\begin{equation}
+\label{solve}
+\begin{aligned}
+ \min_{\varphi_\alpha, \varphi_\beta}&\frac{1}{N}\sum_{i=1}^{N}\omega_1E_\alpha(sE^{(i)},I^{(i)},S^{(i)};\varphi_\alpha)\\
+ &+(1-\omega_1)E_\beta(sE^{(i)},I^{(i)},S^{(i)};\varphi_\alpha,\varphi_\beta)+\omega_2L
+\end{aligned}
+\end{equation}
+Where $N$ is the number of samples in the training set, and $i_{th}$ sample being a multichannel gesture with marked sentence $(sE^{(i)},I^{(i)},S^{(i)})$. $\varphi_\alpha$ and $\varphi_\beta$ denote parameters in the DeepSLR, respectively. L is a regularization term. Eq. (\ref{solve})represents the minimization of the mean loss over training data with some regularizations. The balance between the loss term and the regularization term is achieved by weights $\omega_1$ and $\omega_2$.
+
+\section{System Design}
+\label{sec:DeepSLR}
+In this section, we will introduce the design of attention-based SLR system in detail, XXX-SLR, which utilizes multi-source information fusion technology to read the user's sign language movements and capture the unique sign language patterns of finger movements and gesture movements for sign language users.
+
+We first introduce how XXX-SLR extracts features from many complex raw data, and then describe how the XXX-SLR performs in feature fusion. After that, we show how XXX-SLR can make complete sentence recognition without segmentation.
+\subsection{Feature Extraction}
+%These activity segments contain important representational features of gestures.
+The main objective of feature extraction is to remove redundant noise and extract effective feature information from the original signal stream. The effective feature information recorded in the process of the gesture movements which represent meaningful fingers and arms gestures are called active segments. The intelligent processing of SLR requires automatic noise reduction processing and feature extraction processing from a continuous streams of input signals, which includes ``Feature for sEMG" and ``Feature for IMU(i.e., ACC, GYRO, EULA and Quaternion)"
+\subsubsection{Feature for sEMG}
+The various features of sEMG are considered in these literature \cite{kosmidou2006evaluation,khushaba2007channel}. These features have included a variety of time-domain, frequency-domain, and time-frequency-domain features. It has been shown that some successful applications can be achieved by time-domain parameters \cite{huang2005gaussian}, for example, zero-crossing rate and arithmetic average.
+
+Computing the average value of the multichannel sEMG signal at time $t$ according to
+\begin{equation}
+\label{emg1}
+\begin{aligned}
+ sEMG_{avg}(t)= \frac{1}{N_i}\sum_{i=1}^{N_i}EMG_{i}(t),
+\end{aligned}
+\end{equation}
+where $i$ is the index of the channel and $N_c$ is the number of channels.
+
+The average sEMG energy is denoised using a db12 wavelet transform (WT) based on the minimaxi principle according to Eq. (\ref{emg2}).
+\begin{equation}
+\label{emg2}
+\begin{aligned}
+ WT_{sEMG}(a,\tau) = \frac{1}{\sqrt{a}}\int_{-\infty}^{+\infty}sEMG_{avg}(t)*\psi(\frac{t-\tau}{a})dt.
+\end{aligned}
+\end{equation}
+Where $a$ is the scale, $\tau$ is the amount of translation, the scale corresponds to the frequency (inverse ratio), and the amount of translation $\tau$ corresponds to time.
+
+
+
+\subsubsection{Feature for ACC and GYRO}
+The accelerometer measures the rate of change of velocity along three axes (x, y, z) when hand gestures are performed. Since the acceleration signals changing with time can directly represent patterns of hand gesture trajectories. The gyroscope can measures the rotation state of the object in three-dimensional space by the angle and the angular velocity. That is to say, the gyroscope can directly represent the rotation mode of the arm by measuring its own rotation transformation.
+
+\subsubsection{Feature for EULA}
+In this paper, we utile the algorithm based on rotation matrix to obtain EULA by the angular rate gyroscope sensor. Since the error of gyroscope system tends to increase with time , we use accelerometer and magnetometer for calibration and compensation. The rotation matrix represents the change in coordinates of an object in three dimensions. It is a typical representation of object¡¯s attitude (very often used, e.g., in computer graphics). Which is defined as the following form:
+%\begin{gather*}
+%\label{R}
+%\begin{aligned}
+%R =
+%\begin{bmatrix} R_{11} & R_{12} & R_{13} \\ R_{21} & R_{22} & R_{23} \\ R_{31} & R_{32} & R_{33} \\ \end{bmatrix}.
+%\end{aligned}
+%\end{gather*}
+
+
+
+\begin{equation}
+\mathbb{R} = {
+\left[ \begin{array}{ccc}
+R_{11} & R_{12} & R_{13}\\
+R_{21} & R_{22} & R_{23}\\
+R_{31} & R_{32} & R_{33}
+\end{array}
+\right ]}
+\end{equation}
+
+$\mathbb{R}_{n+1}$ is obtained by $\mathbb{R}_{n}$ times the update matrix $\mathbb{R}_{update}$:
+\begin{equation}
+\label{R_n+1}
+\begin{aligned}
+ \mathbb{R}_{n+1} = \mathbb{R}_{update}\cdot \mathbb{R}_{n}.
+\end{aligned}
+\end{equation}
+
+The update matrix $R_{update}$ defines rotation of the object between 2 recent samples of the angular velocity vector $\omega'$ (samples $\omega_{n-1}$ and $\omega_{n}$ ) with time span $\Delta T$ . If we assume that there is a constant angular velocity between two samples, its direction defines the axis of rotation and its magnitude times the sampling period $\Delta T$ defines the angle of rotation:
+\begin{equation}
+\label{R_n+1}
+\begin{aligned}
+ n=\frac{\omega'}{|\omega'|}=&\frac{\omega'}{\sqrt{\omega_{x}^{'2}+\omega_{y}^{'2}+\omega_{z}^{'2}}}=[n_{x}, n_{y}, n_{z}],\\
+ &\theta = |\omega'|\Delta T.
+\end{aligned}
+\end{equation}
+
+The corresponding update matrix is:
+%\begin{gather*}
+%\label{R}
+%\begin{aligned}
+%R_{update} =
+%\begin{bmatrix} c+n_{x}^{2}(1-c) & n_{x}n_{y}(1-c)+n_{z}s & n_{x}n_{z}(1-c)-n_{y}s \\ n_{y}n_{x}(1-c)-n_{z}s & c+n_{y}^{2}(1-c) & n_{y}n_{z}(1-c)+n_{x}s \\ n_{z}n_{x}(1-c)+n_{y}s & n_{z}n_{y}(1-c)-n_{x}s & c+n_{z}^{2}(1-c) \\ \end{bmatrix}.
+%\end{aligned}
+%\end{gather*}
+\begin{multline}
+\mathbb{R}_{update} = \left[\begin{array}{ccc}
+c+n_{x}^{2}(1-c) & n_{x}n_{y}(1-c)+n_{z}s\\
+n_{y}n_{x}(1-c)-n_{z}s & c+n_{y}^{2}(1-c)\\
+n_{z}n_{x}(1-c)+n_{y}s & n_{z}n_{y}(1-c)-n_{x}s\\
+\end{array}\right.\\
+\left.\begin{array}{cc}
+n_{x}n_{z}(1-c)-n_{y}s\\
+n_{y}n_{z}(1-c)+n_{x}s\\
+c+n_{z}^{2}(1-c)\\
+\end{array}\right],
+\end{multline}
+where $c$ =$\cos(\theta)$ and $s$ = $\sin(\theta)$.
+
+We have the following is z-y-x convention (sometimes called  Yaw-Pitch-Roll convention):
+\begin{enumerate}
+  \item Rotate the object around its $z$-axis by angle Yaw (marked $\gamma$);
+  \item Rotate the object around its new $y_{1}$-axis by angle Pitch (marked $\beta$);
+  \item Rotate the object around its new $x_{2}$-axis by angle Roll (marked $\alpha$).
+\end{enumerate}
+
+Conversion from the rotational matrix to EULA can be done by the following algorithm \ref{alg:Conversion}.
+
+\begin{algorithm}
+\caption{Conversion from Rotational Matrix to EULA}
+\label{alg:Conversion}
+\begin{algorithmic}[1]
+\REQUIRE Point in 2D plane.
+\ENSURE An oriented angle between x-axis and the vector [x, y] (i.e., Yaw, Pitch and Roll).
+
+\STATE Initialization rotational matrix $\mathbb{R}^{N}$
+\FOR {$each$ in $N$}
+        \IF {$R_{13}^{i} \leq -1$}
+            \STATE $\alpha \leftarrow 0, \beta \leftarrow \frac{\pi}{2}, \gamma \leftarrow -\arctan2(R_{21}^{i}, R_{31}^{i})$;\\
+            return $\alpha, \beta, \gamma$
+        \ENDIF
+        \IF {$R_{13}^{i} \geq 1$}
+            \STATE $\alpha \leftarrow 0, \beta \leftarrow -\frac{\pi}{2}, \gamma \leftarrow \arctan2(-R_{32}^{i}, R_{22}^{i})$;\\
+            return $\alpha, \beta, \gamma$
+
+        \ELSE
+            \STATE $\alpha \leftarrow \arctan2(R_{23}^{i}, R_{33}^{i}), \beta \leftarrow \arcsin(-R_{13}),$
+
+            $\gamma \leftarrow \arctan2(R_{12}^{i}, R_{11}^{i})$;\\
+            return $\alpha, \beta, \gamma$
+        \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Feature for Quaternion}
+Euler angles are an important feature of gestures, but there are also some problems with gimbal lock. So we extract the quaternion as an important gesture trajectory feature. We calculate the conversion from EULA to quaternion by Eq. (\ref{EtoQ}),
+\begin{equation}
+\label{EtoQ}
+\mathbb{Q} = {
+\left[ \begin{array}{ccc}
+x\\
+y\\
+z\\
+w
+\end{array}
+\right ]}
+=
+{
+\left[ \begin{array}{ccc}
+k_{x}j_{y}j_{z}-j_{x}ck_{z}\\
+j_{x}k_{y}j_{z}+k_{x}j_{y}k_{z}\\
+j_{x}j_{y}k_{z}-k_{x}k_{y}j_{z}\\
+-j_{x}j_{y}j_{z}-k_{x}k_{y}k_{z}
+\end{array}
+\right ]}
+\end{equation}
+where $k_{x}=\sin(\frac{\alpha}{2})$, $k_{y}=\sin(\frac{\beta}{2})$, $k_{z}=\sin(\frac{\gamma}{2})$; $j_{x}=\cos(\frac{\alpha}{2})$, $j_{y}=\cos(\frac{\beta}{2})$, $j_{z}=\cos(\frac{\gamma}{2})$.
+
+
+
+
+\subsection{Feature Fusion}
+Fusion of SEMG and ACC signals is necessary for large-scale gesture recognition. Four types of features are combined (6) to provide information from different aspects. £¨2014£©
+
+
+\subsection{Sentence Recognition}
+
+
+
+
+%\vspace{1mm}
+
+%\textbf{Continuous SLR:}
+
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+\end{document}
