@@ -280,7 +280,7 @@ def evaluate(args):
     dropout_keep = pretrain_graph.get_tensor_by_name('dropout_keep_fm:0')
     train_phase = pretrain_graph.get_tensor_by_name('train_phase_fm:0')
 
-    # restore session
+    # restore session;
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
