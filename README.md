@@ -7,5 +7,5 @@
 
 ## **something important**
 ### LoadData is for data loading.
-### Because we don't have dataset now,数据生成.exe is for creating random dataset.
+### Because we don't have dataset now,datacreate.exe is for creating random dataset.
 ### All source code is under gen menu.
