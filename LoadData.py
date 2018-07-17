@@ -142,7 +142,7 @@ class LoadData(object):
         self.gyrtrainleft ,self.gyrtestleft ,self.gyrtrainright ,self.gyrtestright ,
         self.oltrainleft ,self.oltestleft ,self.oltrainright , self.oltestright ,
         self.oritrainleft , self.oritestleft ,self.oritrainright, self.oritestright ,
-        self.ytrain,self.ytest,self.ohytr,self.ohyte,self.ohytr,self.tr_len,self.ohyte,self.te_len]
+        self.ytrain,self.ytest,self.ohytr,self.tr_len,self.ohyte,self.te_len]
 
     def gettrainlabel(self):
         return self.y_trainlabel
