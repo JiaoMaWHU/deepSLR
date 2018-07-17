@@ -6,7 +6,7 @@
 
 Just need to run deep_slr_v1.py to start.
 
-## **something important**
+## **Something important**
 
 LoadData.py is for data loading.
 Because we don't have dataset now,datacreate.exe is for creating random dataset.
