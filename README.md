@@ -1,6 +1,6 @@
 # **deepSLR**
 
-*something need to be attention(arg are const)*
+*something need to be attention(args are const)*
 
 ## **How to start**
 
