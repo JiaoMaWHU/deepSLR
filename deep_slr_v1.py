@@ -5,9 +5,7 @@ import numpy as np
 import math
 import os
 import LoadData as DATA
-from time import time
-from sklearn.metrics import mean_squared_error
-from tensorflow.contrib.layers import batch_norm as batch_norm
+
 
 
 
@@ -39,6 +37,8 @@ def parse_args():
 
 class SLR():
     def __init__(self):
+        self.batch_size=300
+        self.lr_init  =1.0
         # bind params to class
 # =============================================================================
 #         self.batch_size = batch_size
@@ -60,19 +60,20 @@ class SLR():
         self._init_graph()
 
     def _init_graph(self):
-        self.emgl = tf.placeholder(tf.float32, [None, 402, 8, 1],name='cnn_left_emg')
-        self.emgr = tf.placeholder(tf.float32, [None, 402, 8,1],name='cnn_right_emg')
-        self.accl = tf.placeholder(tf.float32, [None, 402, 3, 1],name='cnn_left_acc')
-        self.accr = tf.placeholder(tf.float32, [None, 402, 3,1],name='cnn_right_acc')
-        self.gyrl = tf.placeholder(tf.float32, [None, 402, 3, 1],name='cnn_left_gyr')
-        self.gyrr = tf.placeholder(tf.float32, [None, 402, 3,1],name='cnn_right_gyr')
-        self.oll = tf.placeholder(tf.float32, [None, 400, 3, 1],name='cnn_left_ol')
-        self.olr = tf.placeholder(tf.float32, [None, 400, 3,1],name='cnn_right_ol')        
-        self.oril = tf.placeholder(tf.float32, [None, 400, 4, 1],name='cnn_left_ori')
-        self.orir = tf.placeholder(tf.float32, [None, 400, 4,1],name='cnn_right_ori')  
-        self.target     = tf.placeholder(tf.int32, [None, 8], name="target")
-        self.label = tf.placeholder(tf.float32, [None, 8, 20],name='label') 
-        self.target_len = tf.placeholder(tf.int32, [None], name="target_len")
+        self.emgl = tf.placeholder(tf.float32, [self.batch_size, 402, 8, 1],name='cnn_left_emg')
+        self.emgr = tf.placeholder(tf.float32, [self.batch_size, 402, 8,1],name='cnn_right_emg')
+        self.accl = tf.placeholder(tf.float32, [self.batch_size, 402, 3, 1],name='cnn_left_acc')
+        self.accr = tf.placeholder(tf.float32, [self.batch_size, 402, 3,1],name='cnn_right_acc')
+        self.gyrl = tf.placeholder(tf.float32, [self.batch_size, 402, 3, 1],name='cnn_left_gyr')
+        self.gyrr = tf.placeholder(tf.float32, [self.batch_size, 402, 3,1],name='cnn_right_gyr')
+        self.oll = tf.placeholder(tf.float32, [self.batch_size, 400, 3, 1],name='cnn_left_ol')
+        self.olr = tf.placeholder(tf.float32, [self.batch_size, 400, 3,1],name='cnn_right_ol')        
+        self.oril = tf.placeholder(tf.float32, [self.batch_size, 400, 4, 1],name='cnn_left_ori')
+        self.orir = tf.placeholder(tf.float32, [self.batch_size, 400, 4,1],name='cnn_right_ori')  
+        self.target     = tf.placeholder(tf.int32, [self.batch_size, 8], name="target")
+        self.label = tf.placeholder(tf.float32, [self.batch_size, 8, 20],name='label') 
+        self.target_len = tf.placeholder(tf.int32, [self.batch_size], name="target_len")
+        self.dropout    = tf.placeholder(tf.float32, name="dropout")
         label_1=tf.transpose(self.label,[1,0,2])
 # =============================================================================
 #         input is emg  402*8=>400*6*1
@@ -144,8 +145,8 @@ class SLR():
 #         
 #         temp=self.multisensor.read(self.i)
 # =============================================================================
-        W_fc = self.weight_variable([400,30,10])
-        b_fc = self.bias_variable([10])
+        W_fc = self.weight_variable([400,30,20])
+        b_fc = self.bias_variable([20])
         h_fc = tf.nn.softmax(tf.matmul( multisensor,W_fc) + b_fc)
         #output=tf.transpose(h_fc,[1,0,2])
         print(h_fc.get_shape())
@@ -159,20 +160,20 @@ class SLR():
                                           initializer=initializer)
             self.proj_b = tf.get_variable("b", shape=[20],
                                           initializer=initializer)
-            self.proj_Wo = tf.get_variable("Wo", shape=[20,5000],
+            self.proj_Wo = tf.get_variable("Wo", shape=[20,20],
                                            initializer=initializer)
-            self.proj_bo = tf.get_variable("bo", shape=[5000],
+            self.proj_bo = tf.get_variable("bo", shape=[20],
                                            initializer=initializer)
 # =============================================================================
 #        source and encoder part
 # =============================================================================
         with tf.variable_scope("encoder"):
-            self.s_proj_W = tf.get_variable("s_proj_W", shape=[10, 256],
+            self.s_proj_W = tf.get_variable("s_proj_W", shape=[20, 256],
                                             initializer=initializer)
             self.s_proj_b = tf.get_variable("s_proj_b", shape=[256],
                                             initializer=initializer)
             cell = tf.nn.rnn_cell.BasicLSTMCell(256, state_is_tuple=True)
-            cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=0.8)
+            cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=1-self.dropout)
             self.encoder = tf.nn.rnn_cell.MultiRNNCell([cell]*2, state_is_tuple=True)
 # =============================================================================
 #        source and decoder part
@@ -183,13 +184,13 @@ class SLR():
             self.t_proj_b = tf.get_variable("t_proj_b", shape=[256],
                                             initializer=initializer)                
             cell = tf.nn.rnn_cell.BasicLSTMCell(256, state_is_tuple=True)
-            cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=0.8)
+            cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=1-self.dropout)
             self.decoder = tf.nn.rnn_cell.MultiRNNCell([cell]*2, state_is_tuple=True)
         
 # =============================================================================
 #       encoder network
 # =============================================================================        
-        s = self.encoder.zero_state(128, tf.float32)
+        s = self.encoder.zero_state(self.batch_size, tf.float32)
         encoder_hs = []
         for t in range(400):
             if t > 0: tf.get_variable_scope().reuse_variables()
@@ -200,7 +201,7 @@ class SLR():
         encoder_hs = tf.stack(encoder_hs)
         
         
-        s = self.decoder.zero_state(128, tf.float32)
+        s = self.decoder.zero_state(self.batch_size, tf.float32)
         logits = []
         probs  = []
         for t in range(8):
@@ -209,23 +210,26 @@ class SLR():
             x = tf.matmul(x, self.t_proj_W) + self.t_proj_b
             h_t, s = self.decoder(x, s)
             h_tld = self.attention(h_t, encoder_hs)
-
+            print(h_tld.get_shape())
             oemb  = tf.matmul(h_tld, self.proj_W) + self.proj_b
             logit = tf.matmul(oemb, self.proj_Wo) + self.proj_bo
             prob  = tf.nn.softmax(logit)
             logits.append(logit)
             probs.append(prob)
-        logits     = logits[:-1]
-        targets    = tf.split(1, 8, self.target)[1:]
-        weights    = tf.unstack(tf.sequence_mask(self.target_len - 1, 7,
-                                                dtype=tf.float32), None, 1)
-      
-        self.loss  = tf.contrib.legacy_seq2seq.sequence_loss(logits, targets, weights)
-        self.probs = tf.transpose(tf.stack(probs), [1, 0, 2])
-        print(self.probs.get_shape())
-        self.optim = tf.contrib.layers.optimize_loss(self.loss, None,
-                1.0, "SGD", clip_gradients=5.,
-                summaries=["learning_rate", "loss", "gradient_norm"])
+        with tf.variable_scope("1mmm",reuse=tf.AUTO_REUSE):
+            logits     = logits[:-1]
+            targets    = tf.transpose(self.target,[1,0])[1:]
+            print(tf.stack(targets).get_shape())  
+            print(tf.stack(logits).get_shape())    
+            weights    = tf.unstack(tf.sequence_mask(self.target_len - 1, 7,
+                                                    dtype=tf.float32), None, 1)
+          
+            self.loss  = tf.contrib.seq2seq.sequence_loss(tf.stack(logits), targets, tf.stack(weights))
+            self.probs = tf.transpose(tf.stack(probs), [1, 0, 2])
+            print(self.probs.get_shape())
+            self.optim = tf.contrib.layers.optimize_loss(self.loss, None,
+                    self.lr_init, "SGD", clip_gradients=5.,
+                    summaries=["learning_rate", "loss", "gradient_norm"])
 
         #result = tf.while_loop(self.cond, self.body, loop_vars=[self.i+1, temp])
         #time,out=result.stack()
@@ -244,18 +248,6 @@ class SLR():
         self.saver = tf.train.Saver()
         init = tf.global_variables_initializer()
         self.sess.run(init)
-
-        # print number of params
-        total_parameters = 0
-        for variable in self.weights.values():
-            shape = variable.get_shape()  # shape is an array of tf.Dimension
-            variable_parameters = 1
-            for dim in shape:
-                variable_parameters *= dim.value
-            total_parameters += variable_parameters
-        if self.verbose > 0:
-            print("#params: %d" % total_parameters)
-            logging.info("#params: %d" % total_parameters)
 
 
         
@@ -287,7 +279,25 @@ class SLR():
         return tf.Variable(initial)
 
 
-    def train(self, Train_data, Validation_data, Test_data):  # fit a dataset
+    def train(self, enl,enr,anl,anr,gnl,gnr,lnl,lnr,onl,onr,y_train,ohtr,tr_len):
+        for i in range(12):
+            for start, end in zip(range(0, 1000, 300),
+                                  range(300, 1001, 300)):
+                tloss=self.sess.run([self.loss], feed_dict={self.emgl:enl[start:end],
+                                                     self.emgr:enr[start:end],
+                                                     self.accl:anl[start:end],
+                                                     self.accr:anr[start:end],
+                                                     self.gyrl:gnl[start:end],
+                                                     self.gyrr:gnr[start:end],
+                                                     self.oll:lnl[start:end,:400],
+                                                     self.olr:lnr[start:end,:400],    
+                                                     self.oril:onl[start:end,:400],
+                                                     self.orir:onr[start:end,:400],
+                                                     self.target:y_train[start:end],
+                                                     self.label:ohtr[start:end],
+                                                     self.target_len :tr_len[start:end],
+                                                     self.dropout:0.0 })
+                print(tloss)
         return 0
  
 def make_save_file(args):
@@ -308,8 +318,8 @@ def make_log_file(args):
 
 def train(args):
     # Data loading
-    enl,etl,enr,etr,anl,atl,anr,atr,gnl,gtl,gnr,gtr,lnl,ltl,lnr,ltr,onl,otl,onr,otr,y_train,y_test=DATA.LoadData("data").getdata()
-    print(y_train)
+    data=DATA.LoadData("data").getdata()
+    print(data[20])
     if args.verbose > 0:
         #下面的需要改
         print(
@@ -321,58 +331,14 @@ def train(args):
             % ( args.epoch, args.batch_size, args.lr, 
                args.optimizer, args.batch_norm))
 
-    # Training
-    t1 = time()
+
     model = SLR()
-    model.train(data.Train_data, data.Validation_data, data.Test_data)
+    model.train(data[0],data[2],data[4],data[6],data[8],data[10],data[12],data[14],data[16],data[18],data[20],data[22],data[23])
 
 
 
 def evaluate(args):
-    # load test data
-    data = DATA.LoadData(args.path).Test_data
-    save_file = make_save_file(args)
-
-    # load the graph
-    weight_saver = tf.train.import_meta_graph(save_file + '.meta')
-    pretrain_graph = tf.get_default_graph()
-
-    # load tensors
-    feature_embeddings = pretrain_graph.get_tensor_by_name('feature_embeddings:0')
-    nonzero_embeddings = pretrain_graph.get_tensor_by_name('nonzero_embeddings:0')
-    feature_bias = pretrain_graph.get_tensor_by_name('feature_bias:0')
-    bias = pretrain_graph.get_tensor_by_name('bias:0')
-    fm = pretrain_graph.get_tensor_by_name('fm:0')
-    fm_out = pretrain_graph.get_tensor_by_name('fm_out:0')
-    out = pretrain_graph.get_tensor_by_name('out:0')
-    train_features = pretrain_graph.get_tensor_by_name('train_features_fm:0')
-    train_labels = pretrain_graph.get_tensor_by_name('train_labels_fm:0')
-    dropout_keep = pretrain_graph.get_tensor_by_name('dropout_keep_fm:0')
-    train_phase = pretrain_graph.get_tensor_by_name('train_phase_fm:0')
-
-    # restore session;
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    sess = tf.Session(config=config)
-    weight_saver.restore(sess, save_file)
-
-    # start evaluation
-    num_example = len(data['Y'])
-    feed_dict = {train_features: data['X'], train_labels: [[y] for y in data['Y']], dropout_keep: 1.0,
-                 train_phase: False}
-    ne, fe = sess.run((nonzero_embeddings, feature_embeddings), feed_dict=feed_dict)
-    _fm, _fm_out, predictions = sess.run((fm, fm_out, out), feed_dict=feed_dict)
-
-    # calculate rmse
-    y_pred = np.reshape(predictions, (num_example,))
-    y_true = np.reshape(data['Y'], (num_example,))
-
-    predictions_bounded = np.maximum(y_pred, np.ones(num_example) * min(y_true))  # bound the lower values
-    predictions_bounded = np.minimum(predictions_bounded, np.ones(num_example) * max(y_true))  # bound the higher values
-    RMSE = math.sqrt(mean_squared_error(y_true, predictions_bounded))
-
-    print("Test RMSE: %.4f" % (RMSE))
-    logging.info("Test RMSE: %.4f" % (RMSE))
+    return 0
 
 if __name__ == '__main__':
 
