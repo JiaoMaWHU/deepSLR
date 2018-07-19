@@ -110,7 +110,7 @@ class LoadData(object):
         while line:
             items = line.strip().split(' ')
             t=len(items)
-            while t<8:
+            while t<7:
                 line=line+'0 '
                 t=t+1
             items = line.strip().split(' ')    
@@ -127,7 +127,7 @@ class LoadData(object):
         while line:
             items = line.strip().split(' ')
             t=len(items)
-            while t<8:
+            while t<7:
                 line=line+'0 '
                 t=t+1
             items = line.strip().split(' ')    
