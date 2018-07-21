@@ -70,8 +70,8 @@ class SLR():
         self.olr = tf.placeholder(tf.float32, [self.batch_size, 400, 3,1],name='cnn_right_ol')        
         self.oril = tf.placeholder(tf.float32, [self.batch_size, 400, 4, 1],name='cnn_left_ori')
         self.orir = tf.placeholder(tf.float32, [self.batch_size, 400, 4,1],name='cnn_right_ori')  
-        self.target     = tf.placeholder(tf.int32, [self.batch_size, 8], name="target")
-        self.label = tf.placeholder(tf.float32, [self.batch_size, 8, 20],name='label') 
+        self.target     = tf.placeholder(tf.int32, [self.batch_size, 7], name="target")
+        self.label = tf.placeholder(tf.float32, [self.batch_size, 7, 20],name='label') 
         self.target_len = tf.placeholder(tf.int32, [self.batch_size], name="target_len")
         self.dropout    = tf.placeholder(tf.float32, name="dropout")
         label_1=tf.transpose(self.label,[1,0,2])
@@ -147,7 +147,7 @@ class SLR():
 # =============================================================================
         W_fc = self.weight_variable([400,30,20])
         b_fc = self.bias_variable([20])
-        h_fc = tf.nn.softmax(tf.matmul( multisensor,W_fc) + b_fc)
+        h_fc = tf.nn.relu(tf.matmul( multisensor,W_fc) + b_fc)
         #output=tf.transpose(h_fc,[1,0,2])
         print(h_fc.get_shape())
         initializer = tf.random_uniform_initializer(-0.1, 0.1)
@@ -204,7 +204,7 @@ class SLR():
         s = self.decoder.zero_state(self.batch_size, tf.float32)
         logits = []
         probs  = []
-        for t in range(8):
+        for t in range(7):
             if t > 0: tf.get_variable_scope().reuse_variables()
             x = label_1[t]
             x = tf.matmul(x, self.t_proj_W) + self.t_proj_b
@@ -221,7 +221,7 @@ class SLR():
             targets    = tf.transpose(self.target,[1,0])[1:]
             print(tf.stack(targets).get_shape())  
             print(tf.stack(logits).get_shape())    
-            weights    = tf.unstack(tf.sequence_mask(self.target_len - 1, 7,
+            weights    = tf.unstack(tf.sequence_mask(self.target_len - 1, 6,
                                                     dtype=tf.float32), None, 1)
           
             self.loss  = tf.contrib.seq2seq.sequence_loss(tf.stack(logits), targets, tf.stack(weights))
