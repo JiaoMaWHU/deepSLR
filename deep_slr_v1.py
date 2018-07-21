@@ -2,7 +2,7 @@ import argparse
 import tensorflow as tf
 import logging
 import numpy as np
-import math
+import random
 import os
 import LoadData as DATA
 
@@ -36,9 +36,11 @@ def parse_args():
 
 
 class SLR():
-    def __init__(self):
-        self.batch_size=300
-        self.lr_init  =1.0
+    def __init__(self,sjnum):
+        self.batch_size=50
+        self.lr_init  =0.01
+        self.sjnum=sjnum
+        print(sjnum)
         # bind params to class
 # =============================================================================
 #         self.batch_size = batch_size
@@ -78,12 +80,12 @@ class SLR():
 # =============================================================================
 #         input is emg  402*8=>400*6*1
 # =============================================================================
-        
         W_conv1 = self.weight_variable([3, 3, 1, 1])
+        
         b_conv1 = self.bias_variable([1])
         h_conv1 = tf.nn.relu(
             tf.nn.conv2d(self.emgl, W_conv1, strides=[1, 1, 1, 1], padding='VALID') + b_conv1)
-
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5) (W_conv1) )
 # =============================================================================
 #         input is emg  402*8=>400*6*1
 # =============================================================================
@@ -92,7 +94,7 @@ class SLR():
         b_conv2 = self.bias_variable([1])
         h_conv2 = tf.nn.relu(
             tf.nn.conv2d(self.emgr, W_conv2, strides=[1, 1, 1, 1], padding='VALID') + b_conv2)
-        
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv2 ))
 # =============================================================================
 #         input is acc  402*3=>400*1*1
 # =============================================================================
@@ -101,7 +103,7 @@ class SLR():
         b_conv3 = self.bias_variable([1])
         h_conv3 = tf.nn.relu(
             tf.nn.conv2d(self.accl, W_conv3, strides=[1, 1, 1, 1], padding='VALID') + b_conv3)
-        
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv3 ))
 # =============================================================================
 #         input is acc  402*3=>400*1*1
 # =============================================================================
@@ -110,7 +112,7 @@ class SLR():
         b_conv4 = self.bias_variable([1])
         h_conv4 = tf.nn.relu(
             tf.nn.conv2d(self.accr, W_conv4, strides=[1, 1, 1, 1], padding='VALID') + b_conv4)
-        
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv4))
 # =============================================================================
 #         input is gyr  402*3=>400*1*1
 # =============================================================================
@@ -119,7 +121,7 @@ class SLR():
         b_conv5 = self.bias_variable([1])
         h_conv5 = tf.nn.relu(
             tf.nn.conv2d(self.gyrl, W_conv5, strides=[1, 1, 1, 1], padding='VALID') + b_conv5)
-        
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv5 ))
 # =============================================================================
 #         input is gyr  402*3=>400*1*1
 # =============================================================================
@@ -129,7 +131,7 @@ class SLR():
         h_conv6 = tf.nn.relu(
             tf.nn.conv2d(self.gyrr, W_conv6, strides=[1, 1, 1, 1], padding='VALID') + b_conv6)
         
-
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv6 ))
         
         multisensor1=tf.concat([h_conv1, h_conv2,h_conv3,h_conv4,h_conv5,h_conv6,self.oll,self.olr,self.oril,self.orir],2)
         multisensor=tf.transpose(tf.reduce_sum(multisensor1, reduction_indices=[3]),[1,0,2])
@@ -148,20 +150,24 @@ class SLR():
         W_fc = self.weight_variable([400,30,20])
         b_fc = self.bias_variable([20])
         h_fc = tf.nn.relu(tf.matmul( multisensor,W_fc) + b_fc)
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_fc ))
         #output=tf.transpose(h_fc,[1,0,2])
         print(h_fc.get_shape())
         initializer = tf.random_uniform_initializer(-0.1, 0.1)
         with tf.variable_scope("decoder"):
             self.W_c = tf.get_variable("W_c", shape=[512,256],
                                        initializer=initializer)
+            tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.W_c ))
             self.b_c = tf.get_variable("b_c", shape=[256],
                                        initializer=initializer) 
             self.proj_W = tf.get_variable("W", shape=[256, 20],
                                           initializer=initializer)
+            tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.proj_W ))
             self.proj_b = tf.get_variable("b", shape=[20],
                                           initializer=initializer)
             self.proj_Wo = tf.get_variable("Wo", shape=[20,20],
                                            initializer=initializer)
+            tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.proj_Wo ))
             self.proj_bo = tf.get_variable("bo", shape=[20],
                                            initializer=initializer)
 # =============================================================================
@@ -170,6 +176,7 @@ class SLR():
         with tf.variable_scope("encoder"):
             self.s_proj_W = tf.get_variable("s_proj_W", shape=[20, 256],
                                             initializer=initializer)
+            tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.s_proj_W ))
             self.s_proj_b = tf.get_variable("s_proj_b", shape=[256],
                                             initializer=initializer)
             cell = tf.nn.rnn_cell.BasicLSTMCell(256, state_is_tuple=True)
@@ -181,6 +188,7 @@ class SLR():
         with tf.variable_scope("decoder"):
             self.t_proj_W = tf.get_variable("t_proj_W", shape=[20, 256],
                                             initializer=initializer)
+            tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.t_proj_W ))
             self.t_proj_b = tf.get_variable("t_proj_b", shape=[256],
                                             initializer=initializer)                
             cell = tf.nn.rnn_cell.BasicLSTMCell(256, state_is_tuple=True)
@@ -225,8 +233,13 @@ class SLR():
                                                     dtype=tf.float32), None, 1)
           
             self.loss  = tf.contrib.seq2seq.sequence_loss(tf.stack(logits), targets, tf.stack(weights))
+            
+            tf.add_to_collection("looss",self.loss)
+            self.rloss=tf.add_n(tf.get_collection("looss"))
             self.probs = tf.transpose(tf.stack(probs), [1, 0, 2])
             print(self.probs.get_shape())
+            self.maxa=tf.cast(tf.argmax(self.probs,2), dtype=tf.int32)
+            self.acc = tf.reduce_mean(tf.cast(tf.equal(self.maxa, self.target), dtype=tf.float32))
             self.optim = tf.contrib.layers.optimize_loss(self.loss, None,
                     self.lr_init, "SGD", clip_gradients=5.,
                     summaries=["learning_rate", "loss", "gradient_norm"])
@@ -280,24 +293,55 @@ class SLR():
 
 
     def train(self, enl,enr,anl,anr,gnl,gnr,lnl,lnr,onl,onr,y_train,ohtr,tr_len):
-        for i in range(12):
-            for start, end in zip(range(0, 1000, 300),
-                                  range(300, 1001, 300)):
-                tloss=self.sess.run([self.loss], feed_dict={self.emgl:enl[start:end],
-                                                     self.emgr:enr[start:end],
-                                                     self.accl:anl[start:end],
-                                                     self.accr:anr[start:end],
-                                                     self.gyrl:gnl[start:end],
-                                                     self.gyrr:gnr[start:end],
-                                                     self.oll:lnl[start:end,:400],
-                                                     self.olr:lnr[start:end,:400],    
-                                                     self.oril:onl[start:end,:400],
-                                                     self.orir:onr[start:end,:400],
-                                                     self.target:y_train[start:end],
-                                                     self.label:ohtr[start:end],
-                                                     self.target_len :tr_len[start:end],
-                                                     self.dropout:0.0 })
-                print(tloss)
+        
+        for i in range(200):
+            arr=random.sample(range(self.sjnum),self.batch_size)
+            a=[]
+            b=[]
+            c=[]
+            d=[]
+            e=[]
+            f=[]
+            a1=[]
+            b1=[]
+            c1=[]
+            d1=[]
+            e1=[]
+            f1=[]
+            g=[]
+            for j in range(self.batch_size):
+                a.append(enl[arr[j]])
+                a1.append(enr[arr[j]])
+                b.append(anl[arr[j]])
+                b1.append(anr[arr[j]])
+                c.append(gnl[arr[j]])
+                c1.append(gnr[arr[j]])
+                d.append(lnl[arr[j]])
+                d1.append(lnr[arr[j]])
+                e.append(onl[arr[j]])
+                e1.append(onr[arr[j]])
+                f.append(y_train[arr[j]])
+                f1.append(ohtr[arr[j]])
+                g.append(tr_len[arr[j]])
+            output=self.sess.run([self.loss,self.optim,self.maxa,self.probs,self.acc], feed_dict={self.emgl:a,
+                                                 self.emgr:a1,
+                                                 self.accl:b,
+                                                 self.accr:b1,
+                                                 self.gyrl:c,
+                                                 self.gyrr:c1,
+                                                 self.oll:d,
+                                                 self.olr:d1,    
+                                                 self.oril:e,
+                                                 self.orir:e1,
+                                                 self.target:f,
+                                                 self.label:f1,
+                                                 self.target_len :g,
+                                                 self.dropout:0.0 })
+            print('loss',output[0])
+            print(output[2])
+            print(output[3])
+            print(f)
+            print('acc',output[4])
         return 0
  
 def make_save_file(args):
@@ -331,8 +375,8 @@ def train(args):
             % ( args.epoch, args.batch_size, args.lr, 
                args.optimizer, args.batch_norm))
 
-
-    model = SLR()
+    sjnum=len(data[20])
+    model = SLR(sjnum)
     model.train(data[0],data[2],data[4],data[6],data[8],data[10],data[12],data[14],data[16],data[18],data[20],data[22],data[23])
 
 

@@ -67,10 +67,10 @@ class LoadData(object):
         otl=self.load(self.oritestleftfile)
         onr=self.load(self.oritrainrightfile)
         otr=self.load(self.oritestrightfile)
-        ytr=self.yload(self.y_train)
-        yte=self.yload(self.y_test)
-        ohytr,tr_len=self.yyload(self.y_train)
-        ohyte,te_len=self.yyload(self.y_test)
+        ytr,tr_len=self.yload(self.y_train)
+        yte,te_len=self.yload(self.y_test)
+        ohytr=self.yyload(self.y_train)
+        ohyte=self.yyload(self.y_test)
         return enl,etl,enr,etr,anl,atl,anr,atr,gnl,gtl,gnr,gtr,lnl,ltl,lnr,ltr,onl,otl,onr,otr,ytr,yte,ohytr,tr_len,ohyte,te_len
     
     
@@ -85,41 +85,17 @@ class LoadData(object):
         while line:
             items = line.strip().split(' ')   
             if len(line)<5:
-                while num<402:
-                    fx.append(a)
-                    num=num+1
+                
                 num=0
                 X.append(fx)
                 fx=[]
             else:
-                a=[]
-                t=len(items)
-                while t>0:
-                    a.append(0)  
-                    t=t-1
-                fx.append( [ float(item) for item in items] )
-                num=num+1
+                fx.append( [ [float(item)] for item in items] )
             line = f.readline()
         f.close()
         return X
     
     def yload(self,file):
-        f=open(file)
-        Y=[]
-        line = f.readline()
-        while line:
-            items = line.strip().split(' ')
-            t=len(items)
-            while t<7:
-                line=line+'0 '
-                t=t+1
-            items = line.strip().split(' ')    
-            Y.append( [ int(item) for item in items] )
-            line = f.readline()
-        f.close
-        return Y
-    
-    def yyload(self,file):
         f=open(file)
         Y=[]
         y_len=[]
@@ -130,12 +106,26 @@ class LoadData(object):
             while t<7:
                 line=line+'0 '
                 t=t+1
-            items = line.strip().split(' ')    
-            Y.append( np.eye(20)[np.array(items, dtype=np.int32)] )
+            items = line.strip().split(' ')
+            while items[t-1]=='0':
+                t=t-1
+            Y.append( [ int(item) for item in items] )
             y_len.append(t)
             line = f.readline()
         f.close
         return Y,y_len
+    
+    def yyload(self,file):
+        f=open(file)
+        Y=[]
+        line = f.readline()
+        while line:
+            items = line.strip().split(' ')
+            items = line.strip().split(' ')    
+            Y.append( np.eye(20)[np.array(items, dtype=np.int32)] )
+            line = f.readline()
+        f.close
+        return Y
     def getdata(self):
         return         [self.emgtrainleft, self.emgtestleft , self.emgtrainright ,self.emgtestright ,
                         self.acctrainleft,self.acctestleft ,self.acctrainright,self.acctestright ,
