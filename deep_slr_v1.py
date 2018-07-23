@@ -38,8 +38,10 @@ def parse_args():
 class SLR():
     def __init__(self,sjnum):
         self.batch_size=50
-        self.lr_init  =0.01
+        self.lr_init  =1.0
         self.sjnum=sjnum
+        self.word_em=4
+        self.wordnum=36
         print(sjnum)
         # bind params to class
 # =============================================================================
@@ -72,8 +74,8 @@ class SLR():
         self.olr = tf.placeholder(tf.float32, [self.batch_size, 400, 3,1],name='cnn_right_ol')        
         self.oril = tf.placeholder(tf.float32, [self.batch_size, 400, 4, 1],name='cnn_left_ori')
         self.orir = tf.placeholder(tf.float32, [self.batch_size, 400, 4,1],name='cnn_right_ori')  
-        self.target     = tf.placeholder(tf.int32, [self.batch_size, 7], name="target")
-        self.label = tf.placeholder(tf.float32, [self.batch_size, 7, 20],name='label') 
+        self.target     = tf.placeholder(tf.int32, [self.batch_size, self.word_em], name="target")
+        self.label = tf.placeholder(tf.float32, [self.batch_size, self.word_em, self.wordnum],name='label') 
         self.target_len = tf.placeholder(tf.int32, [self.batch_size], name="target_len")
         self.dropout    = tf.placeholder(tf.float32, name="dropout")
         label_1=tf.transpose(self.label,[1,0,2])
@@ -147,8 +149,8 @@ class SLR():
 #         
 #         temp=self.multisensor.read(self.i)
 # =============================================================================
-        W_fc = self.weight_variable([400,30,20])
-        b_fc = self.bias_variable([20])
+        W_fc = self.weight_variable([400,30,self.wordnum])
+        b_fc = self.bias_variable([self.wordnum])
         h_fc = tf.nn.relu(tf.matmul( multisensor,W_fc) + b_fc)
         tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_fc ))
         #output=tf.transpose(h_fc,[1,0,2])
@@ -160,21 +162,21 @@ class SLR():
             tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.W_c ))
             self.b_c = tf.get_variable("b_c", shape=[256],
                                        initializer=initializer) 
-            self.proj_W = tf.get_variable("W", shape=[256, 20],
+            self.proj_W = tf.get_variable("W", shape=[256, self.wordnum],
                                           initializer=initializer)
             tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.proj_W ))
-            self.proj_b = tf.get_variable("b", shape=[20],
+            self.proj_b = tf.get_variable("b", shape=[self.wordnum],
                                           initializer=initializer)
-            self.proj_Wo = tf.get_variable("Wo", shape=[20,20],
+            self.proj_Wo = tf.get_variable("Wo", shape=[self.wordnum,self.wordnum],
                                            initializer=initializer)
             tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.proj_Wo ))
-            self.proj_bo = tf.get_variable("bo", shape=[20],
+            self.proj_bo = tf.get_variable("bo", shape=[self.wordnum],
                                            initializer=initializer)
 # =============================================================================
 #        source and encoder part
 # =============================================================================
         with tf.variable_scope("encoder"):
-            self.s_proj_W = tf.get_variable("s_proj_W", shape=[20, 256],
+            self.s_proj_W = tf.get_variable("s_proj_W", shape=[self.wordnum, 256],
                                             initializer=initializer)
             tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.s_proj_W ))
             self.s_proj_b = tf.get_variable("s_proj_b", shape=[256],
@@ -186,7 +188,7 @@ class SLR():
 #        source and decoder part
 # =============================================================================
         with tf.variable_scope("decoder"):
-            self.t_proj_W = tf.get_variable("t_proj_W", shape=[20, 256],
+            self.t_proj_W = tf.get_variable("t_proj_W", shape=[self.wordnum, 256],
                                             initializer=initializer)
             tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.t_proj_W ))
             self.t_proj_b = tf.get_variable("t_proj_b", shape=[256],
@@ -212,7 +214,7 @@ class SLR():
         s = self.decoder.zero_state(self.batch_size, tf.float32)
         logits = []
         probs  = []
-        for t in range(7):
+        for t in range(self.word_em):
             if t > 0: tf.get_variable_scope().reuse_variables()
             x = label_1[t]
             x = tf.matmul(x, self.t_proj_W) + self.t_proj_b
@@ -229,7 +231,7 @@ class SLR():
             targets    = tf.transpose(self.target,[1,0])[1:]
             print(tf.stack(targets).get_shape())  
             print(tf.stack(logits).get_shape())    
-            weights    = tf.unstack(tf.sequence_mask(self.target_len - 1, 6,
+            weights    = tf.unstack(tf.sequence_mask(self.target_len - 1, self.word_em-1,
                                                     dtype=tf.float32), None, 1)
           
             self.loss  = tf.contrib.seq2seq.sequence_loss(tf.stack(logits), targets, tf.stack(weights))
@@ -239,7 +241,6 @@ class SLR():
             self.probs = tf.transpose(tf.stack(probs), [1, 0, 2])
             print(self.probs.get_shape())
             self.maxa=tf.cast(tf.argmax(self.probs,2), dtype=tf.int32)
-            self.acc = tf.reduce_mean(tf.cast(tf.equal(self.maxa, self.target), dtype=tf.float32))
             self.optim = tf.contrib.layers.optimize_loss(self.loss, None,
                     self.lr_init, "SGD", clip_gradients=5.,
                     summaries=["learning_rate", "loss", "gradient_norm"])
@@ -291,10 +292,22 @@ class SLR():
         initial = tf.constant(0.1, shape=shape)
         return tf.Variable(initial)
 
+    def lcs(self,x,y,lenx,leny):
+        a=np.zeros([lenx+1,leny+1])
+        for i in range(lenx+1):
+            for j in range(leny+1):
+                if i==0 or j==0:
+                    a[i,j]=0
+                else:
+                    if x[i-1]==y[j-1]:
+                        a[i,j]=a[i-1,j-1]+1
+                    else:
+                        a[i,j]=max(a[i-1,j],a[i,j-1])
+        return a[lenx,leny]/lenx
 
     def train(self, enl,enr,anl,anr,gnl,gnr,lnl,lnr,onl,onr,y_train,ohtr,tr_len):
         
-        for i in range(200):
+        for i in range(1000):
             arr=random.sample(range(self.sjnum),self.batch_size)
             a=[]
             b=[]
@@ -323,7 +336,7 @@ class SLR():
                 f.append(y_train[arr[j]])
                 f1.append(ohtr[arr[j]])
                 g.append(tr_len[arr[j]])
-            output=self.sess.run([self.loss,self.optim,self.maxa,self.probs,self.acc], feed_dict={self.emgl:a,
+            self.sess.run(self.loss, feed_dict={self.emgl:a,
                                                  self.emgr:a1,
                                                  self.accl:b,
                                                  self.accr:b1,
@@ -337,11 +350,57 @@ class SLR():
                                                  self.label:f1,
                                                  self.target_len :g,
                                                  self.dropout:0.0 })
+            arr=random.sample(range(self.sjnum),self.batch_size)
+            a=[]
+            b=[]
+            c=[]
+            d=[]
+            e=[]
+            f=[]
+            a1=[]
+            b1=[]
+            c1=[]
+            d1=[]
+            e1=[]
+            f1=[]
+            g=[]
+            for j in range(self.batch_size):
+                a.append(enl[arr[j]])
+                a1.append(enr[arr[j]])
+                b.append(anl[arr[j]])
+                b1.append(anr[arr[j]])
+                c.append(gnl[arr[j]])
+                c1.append(gnr[arr[j]])
+                d.append(lnl[arr[j]])
+                d1.append(lnr[arr[j]])
+                e.append(onl[arr[j]])
+                e1.append(onr[arr[j]])
+                f.append(y_train[arr[j]])
+                f1.append(ohtr[arr[j]])
+                g.append(tr_len[arr[j]])
+            output=self.sess.run([self.loss,self.maxa], feed_dict={self.emgl:a,
+                                                     self.emgr:a1,
+                                                     self.accl:b,
+                                                     self.accr:b1,
+                                                     self.gyrl:c,
+                                                     self.gyrr:c1,
+                                                     self.oll:d,
+                                                     self.olr:d1,    
+                                                     self.oril:e,
+                                                     self.orir:e1,
+                                                     self.target:f,
+                                                     self.label:f1,
+                                                     self.target_len :g,
+                                                     self.dropout:0.0 })
+            totacc=0
+            for j in range(self.batch_size):
+                totacc=totacc+self.lcs(f[j],output[1][j],tr_len[j],self.word_em)
+            totacc=totacc/self.batch_size
+    
             print('loss',output[0])
-            print(output[2])
-            print(output[3])
+            print(output[1])
             print(f)
-            print('acc',output[4])
+            print(totacc)
         return 0
  
 def make_save_file(args):

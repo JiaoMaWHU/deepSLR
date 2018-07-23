@@ -78,15 +78,12 @@ class LoadData(object):
         f=open(file)
         X=[]
         fx=[]
-        a=[]
-        t=0
-        num=0
+
         line = f.readline()
         while line:
             items = line.strip().split(' ')   
             if len(line)<5:
                 
-                num=0
                 X.append(fx)
                 fx=[]
             else:
@@ -103,10 +100,6 @@ class LoadData(object):
         while line:
             items = line.strip().split(' ')
             t=len(items)
-            while t<7:
-                line=line+'0 '
-                t=t+1
-            items = line.strip().split(' ')
             while items[t-1]=='0':
                 t=t-1
             Y.append( [ int(item) for item in items] )
@@ -121,8 +114,7 @@ class LoadData(object):
         line = f.readline()
         while line:
             items = line.strip().split(' ')
-            items = line.strip().split(' ')    
-            Y.append( np.eye(20)[np.array(items, dtype=np.int32)] )
+            Y.append( np.eye(36)[np.array(items, dtype=np.int32)] )
             line = f.readline()
         f.close
         return Y
