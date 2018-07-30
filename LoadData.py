@@ -35,14 +35,48 @@ class LoadData(object):
         self.oritestrightfile = self.path + "oritestright.txt"
         self.y_train = self.path + "y_train.txt"
         self.y_test = self.path + "y_test.txt"
+<<<<<<< HEAD
+        self.cnn_label = self.path + "cnn_y_train.txt"
+=======
         
+>>>>>>> deepSLR/master
         [self.emgtrainleft,self.emgtestleft ,self.emgtrainright ,self.emgtestright ,
          self.acctrainleft,self.acctestleft ,self.acctrainright ,self.acctestright,
         self.gyrtrainleft , self.gyrtestleft ,self.gyrtrainright ,self.gyrtestright ,
         self.oltrainleft ,self.oltestleft ,self.oltrainright ,self.oltestright ,
         self.oritrainleft ,self.oritestleft ,self.oritrainright,self.oritestright ,self.ytrain,
+<<<<<<< HEAD
+        self.ytest,self.ohytr,self.tr_len,self.ohyte,self.te_len ,self.cnn]=self.read_data()
+
+        self.emgctestleftfile = self.path + "emgctestleft.txt"
+        self.emgctestrightfile = self.path + "emgctestright.txt"
+        self.accctestleftfile = self.path + "accctestleft.txt"
+        self.accctestrightfile = self.path + "accctestright.txt"
+        self.gyrctestleftfile = self.path + "gyrctestleft.txt"
+        self.gyrctestrightfile = self.path + "gyrctestright.txt"
+        self.orictestleftfile = self.path + "orictestleft.txt"
+        self.orictestrightfile = self.path + "orictestright.txt"
+        self.olctestleftfile = self.path + "olctestleft.txt"
+        self.olctestrightfile = self.path + "olctestright.txt"
+        
+
+
+    def cdata(self):
+        etl=self.load(self.emgctestleftfile)    
+        atl=self.load(self.accctestleftfile)
+        etr=self.load(self.emgctestrightfile)
+        atr=self.load(self.accctestrightfile)
+        gtl=self.load(self.gyrctestleftfile)
+        gtr=self.load(self.gyrctestrightfile)
+        ltl=self.load(self.olctestleftfile)
+        ltr=self.load(self.olctestrightfile)
+        otl=self.load(self.orictestleftfile)
+        otr=self.load(self.orictestrightfile)
+        return etl,etr,atl,atr,gtl,gtr,ltl,ltr,otl,otr
+=======
         self.ytest,self.ohytr,self.tr_len,self.ohyte,self.te_len ]=self.read_data()
 
+>>>>>>> deepSLR/master
 
     def read_data(self):
         # read a data file. For a row, the first column goes into Y_;
@@ -71,7 +105,12 @@ class LoadData(object):
         yte,te_len=self.yload(self.y_test)
         ohytr=self.yyload(self.y_train)
         ohyte=self.yyload(self.y_test)
+<<<<<<< HEAD
+        cnn=self.cnn_load(self.cnn_label)
+        return enl,etl,enr,etr,anl,atl,anr,atr,gnl,gtl,gnr,gtr,lnl,ltl,lnr,ltr,onl,otl,onr,otr,ytr,yte,ohytr,tr_len,ohyte,te_len,cnn
+=======
         return enl,etl,enr,etr,anl,atl,anr,atr,gnl,gtl,gnr,gtr,lnl,ltl,lnr,ltr,onl,otl,onr,otr,ytr,yte,ohytr,tr_len,ohyte,te_len
+>>>>>>> deepSLR/master
     
     
     def load(self,file):
@@ -91,7 +130,22 @@ class LoadData(object):
             line = f.readline()
         f.close()
         return X
+<<<<<<< HEAD
+        
+    def cnn_load(self,file):
+        f=open(file)
+        Y=[]
+        line = f.readline()
+        while line:
+            if len(line)>0:
+                Y.append(int(line)-1)
+            line = f.readline()
+        f.close()
+        return np.eye(30)[np.array(Y, dtype=np.int32)]
+
+=======
     
+>>>>>>> deepSLR/master
     def yload(self,file):
         f=open(file)
         Y=[]
@@ -99,6 +153,10 @@ class LoadData(object):
         line = f.readline()
         while line:
             items = line.strip().split(' ')
+<<<<<<< HEAD
+            items.insert(0, '0')
+=======
+>>>>>>> deepSLR/master
             t=len(items)
             while items[t-1]=='0':
                 t=t-1
@@ -114,6 +172,10 @@ class LoadData(object):
         line = f.readline()
         while line:
             items = line.strip().split(' ')
+<<<<<<< HEAD
+            items.insert(0, '0')
+=======
+>>>>>>> deepSLR/master
             Y.append( np.eye(36)[np.array(items, dtype=np.int32)] )
             line = f.readline()
         f.close
@@ -125,8 +187,17 @@ class LoadData(object):
         self.oltrainleft ,self.oltestleft ,self.oltrainright , self.oltestright ,
         self.oritrainleft , self.oritestleft ,self.oritrainright, self.oritestright ,
         self.ytrain,self.ytest,self.ohytr,self.tr_len,self.ohyte,self.te_len]
+<<<<<<< HEAD
+    def getcnn(self):
+        return self.cnn
+        
+    def gettrainlabel(self):
+        return self.y_trainlabel
+        
+=======
 
     def gettrainlabel(self):
         return self.y_trainlabel
+>>>>>>> deepSLR/master
     def gettestlabel(self):
         return self.y_testlabel    
