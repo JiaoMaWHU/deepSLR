@@ -133,8 +133,9 @@ class SLR():
             each_concat = tf.concat([each_concat, tf.reshape(each_slide_3, [-1, dim])], 1)
             MLP_input.append(each_concat)
             i=i+self.slide_steps
-
+        print(MLP_input.get_shape())
         MLP_input=tf.transpose(MLP_input,[0,1,2])
+        print(MLP_input.get_shape())
         # =============================================================================
         # Multi-layer Perceptron
         # =============================================================================
