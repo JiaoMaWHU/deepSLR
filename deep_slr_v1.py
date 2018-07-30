@@ -6,8 +6,11 @@ import random
 import os
 import LoadData as DATA
 
+<<<<<<< HEAD
 os.environ['CUDA_VISIBLE_DEVICES']='1'
 
+=======
+>>>>>>> deepSLR/master
 
 
 
@@ -39,6 +42,7 @@ def parse_args():
 
 class SLR():
     def __init__(self,sjnum):
+<<<<<<< HEAD
         self.batch_size=150
         self.lr_init  =0.1
         self.sjnum=sjnum
@@ -46,6 +50,13 @@ class SLR():
         self.wordnum=36
         self.bacc=0
         self.num_of_hidden=32
+=======
+        self.batch_size=50
+        self.lr_init  =1.0
+        self.sjnum=sjnum
+        self.word_em=4
+        self.wordnum=36
+>>>>>>> deepSLR/master
         print(sjnum)
         # bind params to class
 # =============================================================================
@@ -84,13 +95,20 @@ class SLR():
         self.dropout    = tf.placeholder(tf.float32, name="dropout")
         label_1=tf.transpose(self.label,[1,0,2])
 # =============================================================================
+<<<<<<< HEAD
 #         input is emg  402*8=>400*6*3
 # =============================================================================
         W_conv1 = self.weight_variable([3, 3, 1, 3])
+=======
+#         input is emg  402*8=>400*6*1
+# =============================================================================
+        W_conv1 = self.weight_variable([3, 3, 1, 1])
+>>>>>>> deepSLR/master
         
         b_conv1 = self.bias_variable([1])
         h_conv1 = tf.nn.relu(
             tf.nn.conv2d(self.emgl, W_conv1, strides=[1, 1, 1, 1], padding='VALID') + b_conv1)
+<<<<<<< HEAD
 # =============================================================================
 #         input is emg  402*8=>400*6*3
 # =============================================================================
@@ -194,6 +212,84 @@ class SLR():
             self.b_c = tf.get_variable("b_c", shape=[self.num_of_hidden],
                                        initializer=initializer) 
             self.proj_W = tf.get_variable("W", shape=[self.num_of_hidden, self.wordnum],
+=======
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5) (W_conv1) )
+# =============================================================================
+#         input is emg  402*8=>400*6*1
+# =============================================================================
+        
+        W_conv2 = self.weight_variable([3, 3, 1, 1])
+        b_conv2 = self.bias_variable([1])
+        h_conv2 = tf.nn.relu(
+            tf.nn.conv2d(self.emgr, W_conv2, strides=[1, 1, 1, 1], padding='VALID') + b_conv2)
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv2 ))
+# =============================================================================
+#         input is acc  402*3=>400*1*1
+# =============================================================================
+        
+        W_conv3 = self.weight_variable([3, 3, 1, 1])
+        b_conv3 = self.bias_variable([1])
+        h_conv3 = tf.nn.relu(
+            tf.nn.conv2d(self.accl, W_conv3, strides=[1, 1, 1, 1], padding='VALID') + b_conv3)
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv3 ))
+# =============================================================================
+#         input is acc  402*3=>400*1*1
+# =============================================================================
+        
+        W_conv4 = self.weight_variable([3, 3, 1, 1])
+        b_conv4 = self.bias_variable([1])
+        h_conv4 = tf.nn.relu(
+            tf.nn.conv2d(self.accr, W_conv4, strides=[1, 1, 1, 1], padding='VALID') + b_conv4)
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv4))
+# =============================================================================
+#         input is gyr  402*3=>400*1*1
+# =============================================================================
+        
+        W_conv5 = self.weight_variable([3, 3, 1, 1])
+        b_conv5 = self.bias_variable([1])
+        h_conv5 = tf.nn.relu(
+            tf.nn.conv2d(self.gyrl, W_conv5, strides=[1, 1, 1, 1], padding='VALID') + b_conv5)
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv5 ))
+# =============================================================================
+#         input is gyr  402*3=>400*1*1
+# =============================================================================
+        
+        W_conv6 = self.weight_variable([3, 3, 1, 1])
+        b_conv6 = self.bias_variable([1])
+        h_conv6 = tf.nn.relu(
+            tf.nn.conv2d(self.gyrr, W_conv6, strides=[1, 1, 1, 1], padding='VALID') + b_conv6)
+        
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_conv6 ))
+        
+        multisensor1=tf.concat([h_conv1, h_conv2,h_conv3,h_conv4,h_conv5,h_conv6,self.oll,self.olr,self.oril,self.orir],2)
+        multisensor=tf.transpose(tf.reduce_sum(multisensor1, reduction_indices=[3]),[1,0,2])
+# =============================================================================
+#         h_flat = tf.contrib.layers.flatten(multisensor1)
+#         print(h_flat.get_shape()) 
+#         self.multisensor = tf.TensorArray(size=0, dtype=tf.float32, dynamic_size=True)
+#         self.multisensor=self.multisensor.unstack(tf.transpose(multisensor1,[1,0,2,3]))
+#         #h_flat = tf.contrib.layers.flatten(self.multisensor)
+#         print(self.multisensor.stack().get_shape())
+#         self.n=tf.constant(400)
+#         self.i=tf.constant(0)
+#         
+#         temp=self.multisensor.read(self.i)
+# =============================================================================
+        W_fc = self.weight_variable([400,30,self.wordnum])
+        b_fc = self.bias_variable([self.wordnum])
+        h_fc = tf.nn.relu(tf.matmul( multisensor,W_fc) + b_fc)
+        tf.add_to_collection("looss", tf.contrib.layers.l2_regularizer(0.5)(W_fc ))
+        #output=tf.transpose(h_fc,[1,0,2])
+        print(h_fc.get_shape())
+        initializer = tf.random_uniform_initializer(-0.1, 0.1)
+        with tf.variable_scope("decoder"):
+            self.W_c = tf.get_variable("W_c", shape=[512,256],
+                                       initializer=initializer)
+            tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.W_c ))
+            self.b_c = tf.get_variable("b_c", shape=[256],
+                                       initializer=initializer) 
+            self.proj_W = tf.get_variable("W", shape=[256, self.wordnum],
+>>>>>>> deepSLR/master
                                           initializer=initializer)
             tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.proj_W ))
             self.proj_b = tf.get_variable("b", shape=[self.wordnum],
@@ -207,10 +303,17 @@ class SLR():
 #        source and encoder part
 # =============================================================================
         with tf.variable_scope("encoder"):
+<<<<<<< HEAD
             self.s_proj_W = tf.get_variable("s_proj_W", shape=[self.wordnum, self.num_of_hidden],
                                             initializer=initializer)
             tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.s_proj_W ))
             self.s_proj_b = tf.get_variable("s_proj_b", shape=[self.num_of_hidden],
+=======
+            self.s_proj_W = tf.get_variable("s_proj_W", shape=[self.wordnum, 256],
+                                            initializer=initializer)
+            tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.s_proj_W ))
+            self.s_proj_b = tf.get_variable("s_proj_b", shape=[256],
+>>>>>>> deepSLR/master
                                             initializer=initializer)
             cell = tf.nn.rnn_cell.BasicLSTMCell(256, state_is_tuple=True)
             cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=1-self.dropout)
@@ -219,10 +322,17 @@ class SLR():
 #        source and decoder part
 # =============================================================================
         with tf.variable_scope("decoder"):
+<<<<<<< HEAD
             self.t_proj_W = tf.get_variable("t_proj_W", shape=[self.wordnum, self.num_of_hidden],
                                             initializer=initializer)
             tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.t_proj_W ))
             self.t_proj_b = tf.get_variable("t_proj_b", shape=[self.num_of_hidden],
+=======
+            self.t_proj_W = tf.get_variable("t_proj_W", shape=[self.wordnum, 256],
+                                            initializer=initializer)
+            tf.add_to_collection("looss",tf.contrib.layers.l2_regularizer(0.5)(self.t_proj_W ))
+            self.t_proj_b = tf.get_variable("t_proj_b", shape=[256],
+>>>>>>> deepSLR/master
                                             initializer=initializer)                
             cell = tf.nn.rnn_cell.BasicLSTMCell(256, state_is_tuple=True)
             cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=1-self.dropout)
@@ -235,7 +345,11 @@ class SLR():
         encoder_hs = []
         for t in range(400):
             if t > 0: tf.get_variable_scope().reuse_variables()
+<<<<<<< HEAD
             x = h_fc1[t]
+=======
+            x = h_fc[t]
+>>>>>>> deepSLR/master
             x = tf.matmul(x, self.s_proj_W) + self.s_proj_b
             h, s = self.encoder(x, s)
             encoder_hs.append(h)
@@ -251,11 +365,16 @@ class SLR():
             x = tf.matmul(x, self.t_proj_W) + self.t_proj_b
             h_t, s = self.decoder(x, s)
             h_tld = self.attention(h_t, encoder_hs)
+<<<<<<< HEAD
+=======
+            print(h_tld.get_shape())
+>>>>>>> deepSLR/master
             oemb  = tf.matmul(h_tld, self.proj_W) + self.proj_b
             logit = tf.matmul(oemb, self.proj_Wo) + self.proj_bo
             prob  = tf.nn.softmax(logit)
             logits.append(logit)
             probs.append(prob)
+<<<<<<< HEAD
         plogits = []
         pprobs = []
         prob = label_1[0]
@@ -271,6 +390,8 @@ class SLR():
             prob = tf.nn.softmax(logit)
             plogits.append(logit)
             pprobs.append(prob)
+=======
+>>>>>>> deepSLR/master
         with tf.variable_scope("1mmm",reuse=tf.AUTO_REUSE):
             logits     = logits[:-1]
             targets    = tf.transpose(self.target,[1,0])[1:]
@@ -280,6 +401,7 @@ class SLR():
                                                     dtype=tf.float32), None, 1)
           
             self.loss  = tf.contrib.seq2seq.sequence_loss(tf.stack(logits), targets, tf.stack(weights))
+<<<<<<< HEAD
             self.probs = tf.transpose(tf.stack(probs), [1, 0, 2])
             self.maxa=tf.cast(tf.argmax(self.probs,2), dtype=tf.int32)
             plogits = plogits[:-1]
@@ -287,6 +409,14 @@ class SLR():
             self.ploss = tf.contrib.seq2seq.sequence_loss(tf.stack(plogits), targets, tf.stack(weights))
             self.pprobs = tf.transpose(tf.stack(pprobs), [1, 0, 2])
             self.pmaxa = tf.cast(tf.argmax(self.pprobs, 2), dtype=tf.int32)
+=======
+            
+            tf.add_to_collection("looss",self.loss)
+            self.rloss=tf.add_n(tf.get_collection("looss"))
+            self.probs = tf.transpose(tf.stack(probs), [1, 0, 2])
+            print(self.probs.get_shape())
+            self.maxa=tf.cast(tf.argmax(self.probs,2), dtype=tf.int32)
+>>>>>>> deepSLR/master
             self.optim = tf.contrib.layers.optimize_loss(self.loss, None,
                     self.lr_init, "SGD", clip_gradients=5.,
                     summaries=["learning_rate", "loss", "gradient_norm"])
@@ -354,7 +484,10 @@ class SLR():
     def train(self, enl,enr,anl,anr,gnl,gnr,lnl,lnr,onl,onr,y_train,ohtr,tr_len):
         
         for i in range(1000):
+<<<<<<< HEAD
             totacc=0
+=======
+>>>>>>> deepSLR/master
             arr=random.sample(range(self.sjnum),self.batch_size)
             a=[]
             b=[]
@@ -383,7 +516,11 @@ class SLR():
                 f.append(y_train[arr[j]])
                 f1.append(ohtr[arr[j]])
                 g.append(tr_len[arr[j]])
+<<<<<<< HEAD
             output = self.sess.run([self.optim,self.maxa], feed_dict={self.emgl:a,
+=======
+            self.sess.run(self.loss, feed_dict={self.emgl:a,
+>>>>>>> deepSLR/master
                                                  self.emgr:a1,
                                                  self.accl:b,
                                                  self.accr:b1,
@@ -397,6 +534,7 @@ class SLR():
                                                  self.label:f1,
                                                  self.target_len :g,
                                                  self.dropout:0.0 })
+<<<<<<< HEAD
             for j in range(self.batch_size):
                 totacc = totacc + self.lcs(f[j][1:], output[1][j][:self.word_em - 1], g[j] - 1, self.word_em - 1)
             totacc=totacc/self.batch_size
@@ -454,6 +592,59 @@ class SLR():
                 self.bacc=totacc
             print('epoch ',i,'\'s acc',totacc)
             print('newest bacc:',self.bacc)
+=======
+            arr=random.sample(range(self.sjnum),self.batch_size)
+            a=[]
+            b=[]
+            c=[]
+            d=[]
+            e=[]
+            f=[]
+            a1=[]
+            b1=[]
+            c1=[]
+            d1=[]
+            e1=[]
+            f1=[]
+            g=[]
+            for j in range(self.batch_size):
+                a.append(enl[arr[j]])
+                a1.append(enr[arr[j]])
+                b.append(anl[arr[j]])
+                b1.append(anr[arr[j]])
+                c.append(gnl[arr[j]])
+                c1.append(gnr[arr[j]])
+                d.append(lnl[arr[j]])
+                d1.append(lnr[arr[j]])
+                e.append(onl[arr[j]])
+                e1.append(onr[arr[j]])
+                f.append(y_train[arr[j]])
+                f1.append(ohtr[arr[j]])
+                g.append(tr_len[arr[j]])
+            output=self.sess.run([self.loss,self.maxa], feed_dict={self.emgl:a,
+                                                     self.emgr:a1,
+                                                     self.accl:b,
+                                                     self.accr:b1,
+                                                     self.gyrl:c,
+                                                     self.gyrr:c1,
+                                                     self.oll:d,
+                                                     self.olr:d1,    
+                                                     self.oril:e,
+                                                     self.orir:e1,
+                                                     self.target:f,
+                                                     self.label:f1,
+                                                     self.target_len :g,
+                                                     self.dropout:0.0 })
+            totacc=0
+            for j in range(self.batch_size):
+                totacc=totacc+self.lcs(f[j],output[1][j],tr_len[j],self.word_em)
+            totacc=totacc/self.batch_size
+    
+            print('loss',output[0])
+            print(output[1])
+            print(f)
+            print(totacc)
+>>>>>>> deepSLR/master
         return 0
  
 def make_save_file(args):
@@ -475,6 +666,10 @@ def make_log_file(args):
 def train(args):
     # Data loading
     data=DATA.LoadData("data").getdata()
+<<<<<<< HEAD
+=======
+    print(data[20])
+>>>>>>> deepSLR/master
     if args.verbose > 0:
         #下面的需要改
         print(

@@ -3,6 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/deepSLR.iml" filepath="$PROJECT_DIR$/.idea/deepSLR.iml" />
+<<<<<<< HEAD
+=======
+      <module fileurl="file://$PROJECT_DIR$/../web_py_test/.idea/web_py_test.iml" filepath="$PROJECT_DIR$/../web_py_test/.idea/web_py_test.iml" />
+>>>>>>> deepSLR/master
     </modules>
   </component>
 </project>
