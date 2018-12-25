@@ -157,6 +157,7 @@ class LoadData(object):
             line = f.readline()
         f.close
         return Y
+
     def getdata(self):
         return         [self.emgtrainleft, self.emgtestleft , self.emgtrainright ,self.emgtestright ,
                         self.acctrainleft,self.acctestleft ,self.acctrainright,self.acctestright ,
@@ -164,6 +165,7 @@ class LoadData(object):
         self.oltrainleft ,self.oltestleft ,self.oltrainright , self.oltestright ,
         self.oritrainleft , self.oritestleft ,self.oritrainright, self.oritestright ,
         self.ytrain,self.ytest,self.ohytr,self.tr_len,self.ohyte,self.te_len]
+
     def getcnn(self):
         return self.cnn
         
