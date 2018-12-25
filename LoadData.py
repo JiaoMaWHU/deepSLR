@@ -34,7 +34,7 @@ class LoadData(object):
         self.oritrainrightfile = self.path +"oritrainright.txt"
         self.oritestrightfile = self.path + "oritestright.txt"
         self.y_train = self.path + "y_train.txt"
-        self.y_test = self.path + "y_test.txt"
+        self.y_test = self.path + "y_ctest.txt"
         self.cnn_label = self.path + "cnn_y_train.txt"
         [self.emgtrainleft,self.emgtestleft ,self.emgtrainright ,self.emgtestright ,
          self.acctrainleft,self.acctestleft ,self.acctrainright ,self.acctestright,
