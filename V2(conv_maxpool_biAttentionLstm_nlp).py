@@ -8,10 +8,9 @@ import LoadData as DATA
 import LanguageModel as nlp
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Hide Warning
-
-
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run DeepSLR.")
@@ -19,7 +18,7 @@ def parse_args():
                         help='Dataset name.')
     parser.add_argument('--process', nargs='?', default='train',
                         help='Process type: train, evaluate.')
-    parser.add_argument('--epoch', type=int, default=2000,
+    parser.add_argument('--epoch', type=int, default=1,
                         help='Number of epochs.')
     parser.add_argument('--pretrain', type=int, default=-1,
                         help='flag for pretrain. 1: initialize from pretrain; 0: randomly initialize; -1: save to '
@@ -46,7 +45,7 @@ def parse_args():
 
 class SLR():
     def __init__(self, train_data_length, test_data_length, arg):
-        self.epoch=arg.epoch
+        self.epoch = arg.epoch
         self.batch_size = arg.batch_size
         self.lr_init = arg.lr
         self.num_of_hidden = arg.num_of_hidden
@@ -94,9 +93,9 @@ class SLR():
         dim = np.prod(shape[2:])
         p12 = tf.transpose(tf.reshape(p12, [-1, 400, dim]), [1, 0, 2])  # ->
         # Attention Part
-        W_a = self.weight_variable([100, 18],name="W_a")
-        W_x = self.weight_variable([100, 18],name="W_x")
-        W_t = self.weight_variable([100, 18],name="W_t")
+        W_a = self.weight_variable([100, 18], name="W_a")
+        W_x = self.weight_variable([100, 18], name="W_x")
+        W_t = self.weight_variable([100, 18], name="W_t")
         multiCH = tf.zeros([100, 18])
         p1_t = []
         for i in range(400):
@@ -109,7 +108,7 @@ class SLR():
         # =============================================================================
         # Conv - MaxPooling - Emg right - 402*8=>400*6*3
         # =============================================================================
-        W_conv2 = self.weight_variable([2, 2, 1, 3],name="W_conv2")
+        W_conv2 = self.weight_variable([2, 2, 1, 3], name="W_conv2")
         b_conv2 = self.bias_variable([3])
         h_conv2 = tf.nn.relu(
             tf.nn.conv2d(self.emgr, W_conv2, strides=[1, 1, 1, 1], padding='VALID') + b_conv2)
@@ -118,7 +117,7 @@ class SLR():
         # =============================================================================
         # Conv - MaxPooling - Acc left -  402*3=>400*1*1
         # =============================================================================
-        W_conv3 = self.weight_variable([2, 2, 1, 3],name="W_conv3")
+        W_conv3 = self.weight_variable([2, 2, 1, 3], name="W_conv3")
         b_conv3 = self.bias_variable([3])
         h_conv3 = tf.nn.relu(
             tf.nn.conv2d(self.accl, W_conv3, strides=[1, 1, 1, 1], padding='VALID') + b_conv3)
@@ -127,7 +126,7 @@ class SLR():
         # =============================================================================
         # Conv - MaxPooling - Acc right -  402*3=>400*1*1
         # =============================================================================
-        W_conv4 = self.weight_variable([2, 2, 1, 3],name="W_conv4")
+        W_conv4 = self.weight_variable([2, 2, 1, 3], name="W_conv4")
         b_conv4 = self.bias_variable([3])
         h_conv4 = tf.nn.relu(
             tf.nn.conv2d(self.accr, W_conv4, strides=[1, 1, 1, 1], padding='VALID') + b_conv4)
@@ -136,7 +135,7 @@ class SLR():
         # =============================================================================
         # Conv - MaxPooling - Gyr left -  402*3=>400*1*1
         # =============================================================================
-        W_conv5 = self.weight_variable([2, 2, 1, 3],name="W_conv5")
+        W_conv5 = self.weight_variable([2, 2, 1, 3], name="W_conv5")
         b_conv5 = self.bias_variable([3])
         h_conv5 = tf.nn.relu(
             tf.nn.conv2d(self.gyrl, W_conv5, strides=[1, 1, 1, 1], padding='VALID') + b_conv5)
@@ -145,7 +144,7 @@ class SLR():
         # =============================================================================
         # Conv - MaxPooling - Gyr right -  402*3=>400*1*1
         # =============================================================================
-        W_conv6 = self.weight_variable([2, 2, 1, 3],name="W_conv6")
+        W_conv6 = self.weight_variable([2, 2, 1, 3], name="W_conv6")
         b_conv6 = self.bias_variable([3])
         h_conv6 = tf.nn.relu(
             tf.nn.conv2d(self.gyrr, W_conv6, strides=[1, 1, 1, 1], padding='VALID') + b_conv6)
@@ -154,7 +153,7 @@ class SLR():
         # =============================================================================
         # Conv - Ol left -  400*3=>400*1*1
         # =============================================================================
-        W_conv7 = self.weight_variable([1, 3, 1, 1],name="W_conv7")
+        W_conv7 = self.weight_variable([1, 3, 1, 1], name="W_conv7")
         b_conv7 = self.bias_variable([1])
         h_conv7 = tf.nn.relu(
             tf.nn.conv2d(self.oll, W_conv7, strides=[1, 1, 1, 1], padding='VALID') + b_conv7)
@@ -162,7 +161,7 @@ class SLR():
         # =============================================================================
         # Conv - Ol right -  400*3=>400*1*1
         # =============================================================================
-        W_conv8 = self.weight_variable([1, 3, 1, 1],name="W_conv8")
+        W_conv8 = self.weight_variable([1, 3, 1, 1], name="W_conv8")
         b_conv8 = self.bias_variable([1])
         h_conv8 = tf.nn.relu(
             tf.nn.conv2d(self.olr, W_conv8, strides=[1, 1, 1, 1], padding='VALID') + b_conv8)
@@ -170,7 +169,7 @@ class SLR():
         # =============================================================================
         # Conv - Ori left -  400*3=>400*1*1
         # =============================================================================
-        W_conv9 = self.weight_variable([1, 4, 1, 1],name="W_conv9")
+        W_conv9 = self.weight_variable([1, 4, 1, 1], name="W_conv9")
         b_conv9 = self.bias_variable([1])
         h_conv9 = tf.nn.relu(
             tf.nn.conv2d(self.oril, W_conv9, strides=[1, 1, 1, 1], padding='VALID') + b_conv9)
@@ -178,7 +177,7 @@ class SLR():
         # =============================================================================
         # Conv - Ori right -  400*3=>400*1*1
         # =============================================================================
-        W_conv10 = self.weight_variable([1, 4, 1, 1],name="W_conv10")
+        W_conv10 = self.weight_variable([1, 4, 1, 1], name="W_conv10")
         b_conv10 = self.bias_variable([1])
         h_conv10 = tf.nn.relu(
             tf.nn.conv2d(self.orir, W_conv10, strides=[1, 1, 1, 1], padding='VALID') + b_conv10)
@@ -188,8 +187,8 @@ class SLR():
         # =============================================================================
         data_for_slice1 = tf.concat([self.emgl, self.emgr, self.accl, self.accr, self.gyrl, self.gyrr], 2)
         _data_for_slice1 = tf.slice(data_for_slice1, [0, 0, 0, 0], [self.batch_size, 400, 28, 1])
-        origin_data = tf.concat([_data_for_slice1,self.oll,self.olr,self.oril,self.orir],2);
-        _origin_data = tf.reduce_sum(origin_data,3)
+        origin_data = tf.concat([_data_for_slice1, self.oll, self.olr, self.oril, self.orir], 2);
+        _origin_data = tf.reduce_sum(origin_data, 3)
 
         afterpool_data = tf.concat([p1, p2, p3, p4, p5, p6], 2)
         shape = afterpool_data.get_shape().as_list()
@@ -202,7 +201,7 @@ class SLR():
         _afterconv_data = tf.reshape(afterconv_data, [-1, 400, dim])
 
         final_data = tf.concat([_afterconv_data, _afterpool_data, _origin_data], 2)
-        multisensor = tf.transpose(final_data, [1, 0, 2]) # (400, 100, 94)
+        multisensor = tf.transpose(final_data, [1, 0, 2])  # (400, 100, 94)
 
         # =============================================================================
         #        Source and Encoder part
@@ -212,11 +211,11 @@ class SLR():
             x = tf.split(x, 400)
 
             # lstm cell
-            lstm_cell_fw = tf.nn.rnn_cell.BasicLSTMCell(128) # ?????????
+            lstm_cell_fw = tf.nn.rnn_cell.BasicLSTMCell(128)  # ?????????
             lstm_cell_bw = tf.nn.rnn_cell.BasicLSTMCell(128)
 
             # dropout
-            lstm_cell_fw = tf.nn.rnn_cell.DropoutWrapper(lstm_cell_fw, output_keep_prob=(1 - self.dropout)) # ????????
+            lstm_cell_fw = tf.nn.rnn_cell.DropoutWrapper(lstm_cell_fw, output_keep_prob=(1 - self.dropout))  # ????????
             lstm_cell_bw = tf.nn.rnn_cell.DropoutWrapper(lstm_cell_bw, output_keep_prob=(1 - self.dropout))
 
             # forward and backward
@@ -232,7 +231,8 @@ class SLR():
         #        Source and Decoder part
         # =============================================================================
         with tf.variable_scope("Decoder"):
-            self.W_c = tf.get_variable("W_c", shape=[2 * self.num_of_hidden, self.num_of_hidden], regularizer=self.l2_reg,
+            self.W_c = tf.get_variable("W_c", shape=[2 * self.num_of_hidden, self.num_of_hidden],
+                                       regularizer=self.l2_reg,
                                        initializer=tf.contrib.layers.xavier_initializer())
             self.b_c = tf.get_variable("b_c", shape=[self.num_of_hidden], regularizer=self.l2_reg,
                                        initializer=tf.contrib.layers.xavier_initializer())
@@ -244,13 +244,14 @@ class SLR():
                                            initializer=tf.contrib.layers.xavier_initializer())
             self.proj_bo = tf.get_variable("proj_bo", shape=[self.wordnum], regularizer=self.l2_reg,
                                            initializer=tf.contrib.layers.xavier_initializer())
-            self.t_proj_W = tf.get_variable("t_proj_W", shape=[self.wordnum, self.num_of_hidden], regularizer=self.l2_reg,
+            self.t_proj_W = tf.get_variable("t_proj_W", shape=[self.wordnum, self.num_of_hidden],
+                                            regularizer=self.l2_reg,
                                             initializer=tf.contrib.layers.xavier_initializer())
             self.t_proj_b = tf.get_variable("t_proj_b", shape=[self.num_of_hidden], regularizer=self.l2_reg,
                                             initializer=tf.contrib.layers.xavier_initializer())
             cell = tf.nn.rnn_cell.BasicLSTMCell(256, state_is_tuple=True)
             cell = tf.nn.rnn_cell.DropoutWrapper(cell, output_keep_prob=1 - self.dropout)
-            self.decoder = tf.nn.rnn_cell.MultiRNNCell([cell] * 2, state_is_tuple=True) # ????????
+            self.decoder = tf.nn.rnn_cell.MultiRNNCell([cell] * 2, state_is_tuple=True)  # ????????
 
         # =============================================================================
         #       Encoder network
@@ -299,7 +300,7 @@ class SLR():
 
             self.ploss = tf.contrib.seq2seq.sequence_loss(tf.stack(plogits), targets, tf.stack(weights))
 
-            self.pprobs = tf.transpose(tf.stack(pprobs), [1, 0, 2])
+            self.pprobs = tf.transpose(tf.stack(pprobs), [1, 0, 2], name="pprobs")
             self.pmaxa = tf.cast(tf.argmax(self.pprobs, 2), dtype=tf.int32)
             self.optim = tf.contrib.layers.optimize_loss(self.loss, None,
                                                          self.lr_init, "Adagrad", clip_gradients=5.,
@@ -327,8 +328,9 @@ class SLR():
         h_tld = tf.tanh(tf.matmul(tf.concat([h_t, c_t], 1), self.W_c) + self.b_c)
         return h_tld
 
-    def weight_variable(self,shape,name):
-        return tf.get_variable(name=name, shape=shape,regularizer=self.l2_reg,initializer=tf.contrib.layers.xavier_initializer())
+    def weight_variable(self, shape, name):
+        return tf.get_variable(name=name, shape=shape, regularizer=self.l2_reg,
+                               initializer=tf.contrib.layers.xavier_initializer())
 
     def bias_variable(self, shape):
         initial = tf.constant(0.1, shape=shape)
@@ -530,12 +532,14 @@ class SLR():
                     f1 = []
                     da = []
                     g = []
-            for j in range(36):
-                print('seq ', j, '\'sacc:', aa[j] / bb[j], ' ', aa[j], ' ', bb[j])
-                logging.info('seq ', j, '\'sacc:', aa[j] / bb[j], ' ', aa[j], ' ', bb[j])
+            print('Epoch %d' % (i + 1))
+            logging.info('Epoch %d' % (i + 1))
+            for j in range(30):
+                print('Sentence %d train acc: %.6f'%(j+1, aa[j] / bb[j]))
+                logging.info('Sentence %d train acc: %.6f'%(j+1, aa[j] / bb[j]))
             totacc = totacc / (znum - num)
-            print('epoch ', i, '\'s acc', totacc)
-            logging.info('epoch ', i, '\'s acc', totacc)
+            print('Overall accuracy %.6f' % totacc)
+            logging.info('Overall accuracy %.6f' % totacc)
             totacc = 0
             totir = 0
             totdr = 0
@@ -594,14 +598,15 @@ class SLR():
             totacc = totacc / end
             totir = totir / end
             totdr = totdr / end
-            print('epoch ', i, ' test\'s acc', totacc, ' test\'s ir', totir, ' test\'s dr', totdr)
-            logging.info('epoch ', i, ' test\'s acc', totacc, ' test\'s ir', totir, ' test\'s dr', totdr)
-
+            print('Test overall accuracy: %.6f, Ir: %.6f, Dr: %.6f' % (totacc, totir, totdr))
+            logging.info('Test overall accuracy: %.6f, Ir: %.6f, Dr: %.6f' % (totacc, totir, totdr))
             if totacc > self.bacc:
                 self.bacc = totacc
                 self.saver.save(self.sess, self.save_file)
-            print('newest bacc:', self.bacc)
-            logging.info('newest bacc:', self.bacc)
+            print('Best accuracy: %.6f\n' % self.bacc)
+            logging.info('Best accuracy: %.6f\n' % self.bacc)
+            writer = tf.summary.FileWriter('./Graphs', tf.get_default_graph())
+            writer.close()
         return 0
 
 
@@ -609,7 +614,7 @@ def make_save_file(args):
     pretrain_path = './Model/%s' % (args.dataset)
     if not os.path.exists(pretrain_path):
         os.makedirs(pretrain_path)
-    save_file = pretrain_path + '/%d_%d' % (args.lr, args.batch_size)
+    save_file = pretrain_path + '/%s_model.ckpt' % (args.dataset)
     return save_file
 
 
@@ -641,8 +646,10 @@ def train(args):
     model = SLR(train_data_length, test_data_length, args)
     model.train(sentence_label, data, data_for_validation)
 
+
 def evaluate(args):
     return 0
+
 
 if __name__ == '__main__':
     args = parse_args()

@@ -35,13 +35,13 @@ class LoadData(object):
         self.oritestrightfile = self.path + "oritestright.txt"
         self.y_train = self.path + "y_train.txt"
         self.y_test = self.path + "y_ctest.txt"
-        self.cnn_label = self.path + "cnn_y_train.txt"
+        self.sentence_label = self.path + "sentence_y_train.txt"
         [self.emgtrainleft,self.emgtestleft ,self.emgtrainright ,self.emgtestright ,
          self.acctrainleft,self.acctestleft ,self.acctrainright ,self.acctestright,
         self.gyrtrainleft , self.gyrtestleft ,self.gyrtrainright ,self.gyrtestright ,
         self.oltrainleft ,self.oltestleft ,self.oltrainright ,self.oltestright ,
         self.oritrainleft ,self.oritestleft ,self.oritrainright,self.oritestright ,self.ytrain,
-        self.ytest,self.ohytr,self.tr_len,self.ohyte,self.te_len ,self.cnn]=self.read_data()
+        self.ytest,self.ohytr,self.tr_len,self.ohyte,self.te_len ,self.sentence]=self.read_data()
 
         self.emgctestleftfile = self.path + "emgctestleft.txt"
         self.emgctestrightfile = self.path + "emgctestright.txt"
@@ -56,7 +56,7 @@ class LoadData(object):
         
 
 
-    def cdata(self):
+    def data_for_validation(self):
         etl=self.load(self.emgctestleftfile)    
         atl=self.load(self.accctestleftfile)
         etr=self.load(self.emgctestrightfile)
@@ -96,8 +96,8 @@ class LoadData(object):
         yte,te_len=self.yload(self.y_test)
         ohytr=self.yyload(self.y_train)
         ohyte=self.yyload(self.y_test)
-        cnn=self.cnn_load(self.cnn_label)
-        return enl,etl,enr,etr,anl,atl,anr,atr,gnl,gtl,gnr,gtr,lnl,ltl,lnr,ltr,onl,otl,onr,otr,ytr,yte,ohytr,tr_len,ohyte,te_len,cnn
+        sentence=self.sentence_load(self.sentence_label)
+        return enl,etl,enr,etr,anl,atl,anr,atr,gnl,gtl,gnr,gtr,lnl,ltl,lnr,ltr,onl,otl,onr,otr,ytr,yte,ohytr,tr_len,ohyte,te_len,sentence
     
     
     def load(self,file):
@@ -118,7 +118,7 @@ class LoadData(object):
         f.close()
         return X
         
-    def cnn_load(self,file):
+    def sentence_load(self,file):
         f=open(file)
         Y=[]
         line = f.readline()
@@ -159,15 +159,16 @@ class LoadData(object):
         return Y
 
     def getdata(self):
-        return         [self.emgtrainleft, self.emgtestleft , self.emgtrainright ,self.emgtestright ,
-                        self.acctrainleft,self.acctestleft ,self.acctrainright,self.acctestright ,
+        return         \
+        [self.emgtrainleft, self.emgtestleft , self.emgtrainright ,self.emgtestright ,
+        self.acctrainleft,self.acctestleft ,self.acctrainright,self.acctestright ,
         self.gyrtrainleft ,self.gyrtestleft ,self.gyrtrainright ,self.gyrtestright ,
         self.oltrainleft ,self.oltestleft ,self.oltrainright , self.oltestright ,
         self.oritrainleft , self.oritestleft ,self.oritrainright, self.oritestright ,
         self.ytrain,self.ytest,self.ohytr,self.tr_len,self.ohyte,self.te_len]
 
-    def getcnn(self):
-        return self.cnn
+    def getsentence(self):
+        return self.sentence
         
     def gettrainlabel(self):
         return self.y_trainlabel
