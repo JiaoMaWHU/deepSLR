@@ -6,6 +6,7 @@ import random
 import os
 import LoadData as DATA
 import LanguageModel as nlp
+from tensorflow.python.client import timeline
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Hide Warning
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -18,7 +19,7 @@ def parse_args():
                         help='Dataset name.')
     parser.add_argument('--process', nargs='?', default='train',
                         help='Process type: train, evaluate.')
-    parser.add_argument('--epoch', type=int, default=1,
+    parser.add_argument('--epoch', type=int, default=2,
                         help='Number of epochs.')
     parser.add_argument('--pretrain', type=int, default=-1,
                         help='flag for pretrain. 1: initialize from pretrain; 0: randomly initialize; -1: save to '
@@ -383,6 +384,8 @@ class SLR():
         return 1 - (a[lenx, leny] / cs), (b[lenx, leny] / cs), (c[lenx, leny] / cs)
 
     def train(self, data1, tdata, cdata):
+        options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+        run_metadata = tf.RunMetadata()
         # sentence_label, data, data_for_validation
         enl = tdata[0]
         enr = tdata[2]
@@ -440,21 +443,29 @@ class SLR():
                     num = num + 1
                 j = j + 1
 
-            self.sess.run(self.optim, feed_dict={self.emgl: a,
-                                                 self.emgr: a1,
-                                                 self.accl: b,
-                                                 self.accr: b1,
-                                                 self.gyrl: c,
-                                                 self.gyrr: c1,
-                                                 self.oll: d,
-                                                 self.olr: d1,
-                                                 self.oril: e,
-                                                 self.orir: e1,
-                                                 self.target: f,
-                                                 self.label: f1,
-                                                 self.target_len: g,
-                                                 self.dropout: self.Dropout_value})
+            # ===================================================
+            #      Train Session
+            # ===================================================
+            self.sess.run(self.optim,run_metadata=run_metadata,options=options,
+              feed_dict={
+                 self.emgl: a,
+                 self.emgr: a1,
+                 self.accl: b,
+                 self.accr: b1,
+                 self.gyrl: c,
+                 self.gyrr: c1,
+                 self.oll: d,
+                 self.olr: d1,
+                 self.oril: e,
+                 self.orir: e1,
+                 self.target: f,
+                 self.label: f1,
+                 self.target_len: g,
+                 self.dropout: self.Dropout_value})
 
+            # ===================================================
+            #      Train Accuracy
+            # ===================================================
             totacc = 0
             a = []
             b = []
@@ -468,8 +479,8 @@ class SLR():
             e = []
             d1 = []
             e1 = []
-            aa = np.zeros(36)
-            bb = np.zeros(36)
+            aa = np.zeros(30)
+            bb = np.zeros(30)
             g = []
             da = []
             num = 0
@@ -540,6 +551,10 @@ class SLR():
             totacc = totacc / (znum - num)
             print('Overall accuracy %.6f' % totacc)
             logging.info('Overall accuracy %.6f' % totacc)
+
+            # ===================================================
+            #      Validation Accuracy
+            # ===================================================
             totacc = 0
             totir = 0
             totdr = 0
@@ -598,15 +613,30 @@ class SLR():
             totacc = totacc / end
             totir = totir / end
             totdr = totdr / end
-            print('Test overall accuracy: %.6f, Ir: %.6f, Dr: %.6f' % (totacc, totir, totdr))
-            logging.info('Test overall accuracy: %.6f, Ir: %.6f, Dr: %.6f' % (totacc, totir, totdr))
+            print('Validation overall accuracy: %.6f, Ir: %.6f, Dr: %.6f' % (totacc, totir, totdr))
+            logging.info('Validation overall accuracy: %.6f, Ir: %.6f, Dr: %.6f' % (totacc, totir, totdr))
+
+            # ===================================================
+            #      Best Accuracy
+            # ===================================================
             if totacc > self.bacc:
                 self.bacc = totacc
                 self.saver.save(self.sess, self.save_file)
             print('Best accuracy: %.6f\n' % self.bacc)
             logging.info('Best accuracy: %.6f\n' % self.bacc)
-            writer = tf.summary.FileWriter('./Graphs', tf.get_default_graph())
-            writer.close()
+
+            # ===================================================
+            #      Timeline
+            # ===================================================
+            fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+            chrome_trace = fetched_timeline.generate_chrome_trace_format()
+            with open('./Timeline/timeline_%d.json'%(j), 'w') as f:
+                f.write(chrome_trace)
+        # ===================================================
+        #      Tensorboard
+        # ===================================================
+        writer = tf.summary.FileWriter('./Graphs', tf.get_default_graph())
+        writer.close()
         return 0
 
 
