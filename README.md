@@ -4,7 +4,7 @@ something need to be attention(args are const)
 
 ## **How to start**
 
-Just need to run deep_slr_v1.py to start.
+Just run deep_slr_v1.py to start.
 
 ## **Something important**
 
